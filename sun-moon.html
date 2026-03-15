@@ -18,53 +18,53 @@
         }
         #ui-panel {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 10px;
+            right: 10px;
             width: 300px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
+            border-radius: 6px;
+            padding: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             backdrop-filter: blur(5px);
-            max-height: 90vh;
+            max-height: 95vh;
             overflow-y: auto;
         }
         h2 {
-            margin-top: 0;
-            font-size: 18px;
+            margin: 0 0 10px 0;
+            font-size: 15px;
             color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 6px;
         }
         .control-group {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         .control-group label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
+            margin-bottom: 4px;
+            font-size: 13px;
             color: #555;
             font-weight: bold;
         }
         .control-group input[type="number"],
         .control-group input[type="datetime-local"] {
             width: 100%;
-            padding: 8px;
+            padding: 5px 8px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 3px;
             box-sizing: border-box;
-            font-size: 14px;
+            font-size: 13px;
         }
         .toggle-row {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 5px;
+            font-size: 13px;
             color: #333;
         }
         .toggle-row input {
-            margin-right: 10px;
+            margin-right: 8px;
             width: 16px;
             height: 16px;
             cursor: pointer;
@@ -80,7 +80,7 @@
             border: 0;
             height: 1px;
             background: #eee;
-            margin: 15px 0;
+            margin: 10px 0;
         }
         #loading {
             position: absolute;
@@ -99,77 +99,110 @@
     
     <div id="ui-panel">
         <h2>天文参数设置</h2>
-        <div class="control-group" style="display:flex; gap:10px;">
+        <div class="control-group" style="display:flex; gap:6px;">
             <div style="flex:1;">
-                <label style="font-size:12px;">纬度</label>
-                <input type="number" id="input-lat" value="38.8339" step="0.0001" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+                <label style="font-size:11px;">纬度</label>
+                <input type="number" id="input-lat" value="38.834" step="0.001" style="width:100%; padding:3px 5px; border:1px solid #ccc; border-radius:3px; box-sizing:border-box; font-size:12px;">
             </div>
             <div style="flex:1;">
-                <label style="font-size:12px;">经度</label>
-                <input type="number" id="input-lon" value="-104.8214" step="0.0001" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+                <label style="font-size:11px;">经度</label>
+                <input type="number" id="input-lon" value="-104.821" step="0.001" style="width:100%; padding:3px 5px; border:1px solid #ccc; border-radius:3px; box-sizing:border-box; font-size:12px;">
             </div>
         </div>
-        <div class="control-group">
-            <label>时间 (Time)</label>
-            <input type="datetime-local" id="input-time">
+        <div class="control-group" style="margin-bottom:6px;">
+            <label style="font-size:11px; margin-bottom:2px;">时间</label>
+            <input type="datetime-local" id="input-time" style="padding:3px 5px; font-size:12px;">
         </div>
-        <div class="control-group">
-            <label>时间体系 (Time System)</label>
-            <select id="time-system" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:14px;">
-                <option value="local">当地地方时 (Local)</option>
-                <option value="standard">用户标准时 (Standard)</option>
-                <option value="utc">UTC (世界协调时)</option>
+        <div class="control-group" style="margin-bottom:6px;">
+            <label style="font-size:11px; margin-bottom:2px;">时间体系</label>
+            <select id="time-system" style="width:100%; padding:4px; border:1px solid #ccc; border-radius:3px; font-size:12px;">
+                <option value="local">当地地方时</option>
+                <option value="standard">用户标准时</option>
+                <option value="utc">UTC</option>
             </select>
+        </div>
+        <div class="control-group" id="true-solar-time-display" style="background:#f0f8ff; padding:6px; border-radius:3px; border:1px solid #b0c4de; margin-bottom:6px;">
+            <div style="font-size:10px; color:#666; margin-bottom:2px;">真太阳时</div>
+            <div id="true-solar-time-value" style="font-size:16px; font-weight:bold; color:#2c5aa0;">--:--:--</div>
+            <div style="font-size:10px; color:#888; margin-top:2px;">
+                均时差: <span id="eot-value">--</span> 分钟
+            </div>
         </div>
 
         <hr>
-        <h2>显示控制</h2>
-        <label class="toggle-row">
-            <input type="checkbox" id="toggle-sun-traj" checked>
-            <span class="color-box" style="background:#ff8c00;"></span> 太阳视运动轨迹
-        </label>
-        <label class="toggle-row">
-            <input type="checkbox" id="toggle-sun-hour" checked>
-            <span class="color-box" style="background:#ffd700;"></span> 太阳逐小时位置
-        </label>
-        <label class="toggle-row">
-            <input type="checkbox" id="toggle-moon-traj" checked>
-            <span class="color-box" style="background:#00bfff;"></span> 月球视运动轨迹
-        </label>
-        <label class="toggle-row">
-            <input type="checkbox" id="toggle-moon-hour" checked>
-            <span class="color-box" style="background:#aaaaaa;"></span> 月球逐小时位置
-        </label>
-        
-        <hr>
-        <label class="toggle-row">
-            <input type="checkbox" id="toggle-horizon" checked>
-            <span class="color-box" style="background:#3cb371;"></span> 地平坐标系
-        </label>
-        <label class="toggle-row">
-            <input type="checkbox" id="toggle-equatorial" checked>
-            <span class="color-box" style="background:#9370db;"></span> 天经天纬坐标系
-        </label>
-        <label class="toggle-row">
-            <input type="checkbox" id="toggle-equator" checked>
-            <span class="color-box" style="background:#e0218a;"></span> 天赤道及小时角
-        </label>
-        
-        <hr>
         <h2>线宽设置</h2>
-        <div class="control-group" style="display:flex; gap:10px;">
+        <div class="control-group" style="display:flex; gap:6px;">
             <div style="flex:1;">
-                <label style="font-size:12px;">经纬线</label>
-                <input type="number" id="line-width-grid" min="0.5" max="5" step="0.1" value="1" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+                <label style="font-size:11px;">经纬线</label>
+                <input type="number" id="line-width-grid" min="0.5" max="5" step="0.1" value="1" style="width:100%; padding:3px 5px; border:1px solid #ccc; border-radius:3px; box-sizing:border-box; font-size:12px;">
             </div>
             <div style="flex:1;">
-                <label style="font-size:12px;">太阳轨迹</label>
-                <input type="number" id="line-width-sun" min="1" max="10" step="0.1" value="1" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+                <label style="font-size:11px;">太阳轨迹</label>
+                <input type="number" id="line-width-sun" min="1" max="10" step="0.1" value="1" style="width:100%; padding:3px 5px; border:1px solid #ccc; border-radius:3px; box-sizing:border-box; font-size:12px;">
             </div>
             <div style="flex:1;">
-                <label style="font-size:12px;">月球轨迹</label>
-                <input type="number" id="line-width-moon" min="1" max="10" step="0.1" value="1" style="width:100%; padding:6px; border:1px solid #ccc; border-radius:4px; box-sizing:border-box; font-size:13px;">
+                <label style="font-size:11px;">月球轨迹</label>
+                <input type="number" id="line-width-moon" min="1" max="10" step="0.1" value="1" style="width:100%; padding:3px 5px; border:1px solid #ccc; border-radius:3px; box-sizing:border-box; font-size:12px;">
             </div>
+        </div>
+        
+        <hr style="margin:6px 0;">
+        <h2>显示控制</h2>
+        <div style="display:flex; flex-wrap:wrap; gap:4px 8px;">
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-sun-traj" checked>
+                <span class="color-box" style="background:#ff8c00;"></span> 太阳视运动轨迹
+            </label>
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-sun-hour" checked>
+                <span class="color-box" style="background:#ffd700;"></span> 太阳逐小时位置
+            </label>
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-moon-traj" checked>
+                <span class="color-box" style="background:#00bfff;"></span> 月球视运动轨迹
+            </label>
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-moon-hour" checked>
+                <span class="color-box" style="background:#aaaaaa;"></span> 月球逐小时位置
+            </label>
+        </div>
+        
+        <hr style="margin:6px 0;">
+        <div style="display:flex; flex-wrap:wrap; gap:4px 8px;">
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-horizon" checked>
+                <span class="color-box" style="background:#3cb371;"></span> 地平坐标系
+            </label>
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-equatorial" checked>
+                <span class="color-box" style="background:#9370db;"></span> 天经天纬坐标系
+            </label>
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-equator" checked>
+                <span class="color-box" style="background:#e0218a;"></span> 天赤道及小时角
+            </label>
+            <label class="toggle-row" style="flex:1; min-width:45%; margin-bottom:3px;">
+                <input type="checkbox" id="toggle-gnomon" checked>
+                <span class="color-box" style="background:#8b4513;"></span> 立竿见影(日晷)
+            </label>
+        </div>
+        
+        <hr style="margin:6px 0;">
+        <h2>动画控制</h2>
+        <div class="control-group" style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+            <button id="anim-play" style="flex:1; padding:5px; background:#4CAF50; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;">▶ 播放</button>
+            <button id="anim-pause" style="flex:1; padding:5px; background:#ff9800; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;">⏸ 暂停</button>
+            <button id="anim-reset" style="flex:1; padding:5px; background:#f44336; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;">⏹ 重置</button>
+        </div>
+        <div class="control-group" style="margin-bottom:6px;">
+            <label style="font-size:11px; margin-bottom:2px;">动画速度</label>
+            <select id="anim-speed" style="width:100%; padding:4px; border:1px solid #ccc; border-radius:3px; font-size:12px;">
+                <option value="1">1分钟/帧</option>
+                <option value="5">5分钟/帧</option>
+                <option value="10" selected>10分钟/帧</option>
+                <option value="30">30分钟/帧</option>
+                <option value="60">1小时/帧</option>
+            </select>
         </div>
     </div>
 
@@ -258,10 +291,16 @@
             const timeSystem = urlParams.get('timeSystem') || 'standard';
             
             if (lat !== null) {
-                document.getElementById('input-lat').value = lat;
+                const latValue = parseFloat(lat);
+                if (!isNaN(latValue)) {
+                    document.getElementById('input-lat').value = latValue.toFixed(3);
+                }
             }
             if (lon !== null) {
-                document.getElementById('input-lon').value = lon;
+                const lonValue = parseFloat(lon);
+                if (!isNaN(lonValue)) {
+                    document.getElementById('input-lon').value = lonValue.toFixed(3);
+                }
             }
             if (timeSystem !== null) {
                 document.getElementById('time-system').value = timeSystem;
@@ -295,6 +334,15 @@
         const R = 100; // 天球半径
         let scene, camera, renderer, controls;
         
+        // 动画控制变量
+        let animationState = {
+            isPlaying: false,
+            speed: 10, // 分钟/帧
+            lastFrameTime: 0,
+            frameInterval: 1000 / 30 // 30fps
+        };
+        let animationId = null;
+        
         // 渲染组
         const groups = {
             horizon: new THREE.Group(),
@@ -304,7 +352,8 @@
             sunHour: new THREE.Group(),
             moonTraj: new THREE.Group(),
             moonHour: new THREE.Group(),
-            baseEqRotate: new THREE.Group() // 用于倾斜天赤道系统的基础组
+            baseEqRotate: new THREE.Group(), // 用于倾斜天赤道系统的基础组
+            gnomon: new THREE.Group() // 日晷指针和影子
         };
 
         function init() {
@@ -340,6 +389,7 @@
             scene.add(groups.sunHour);
             scene.add(groups.moonTraj);
             scene.add(groups.moonHour);
+            scene.add(groups.gnomon);
 
             // 6. 创建固定结构
             createGround();
@@ -426,6 +476,68 @@
             return sprite;
         }
 
+        // 创建日晷（立竿见影）
+        // gnomonHeight: 指针高度
+        // sunPosition: 太阳方向向量（从观测点指向太阳）
+        function createGnomon(gnomonHeight, sunPosition, lineWidth) {
+            const group = new THREE.Group();
+            
+            // 1. 创建指针（垂直于地面，指向天顶）
+            // 指针从地平面(0,0,0)向上延伸到(0, gnomonHeight, 0)
+            const gnomonPoints = [
+                new THREE.Vector3(0, 0, 0),
+                new THREE.Vector3(0, gnomonHeight, 0)
+            ];
+            const gnomonLine = createLine(gnomonPoints, 0x8b4513, 1.0, lineWidth * 2);
+            group.add(gnomonLine);
+            
+            // 2. 计算影子
+            // 影子是太阳方向在地面上的投影
+            // 太阳方向向量应该指向太阳，影子方向与太阳方向相反
+            if (sunPosition.y > 0) { // 太阳在地平线以上
+                // 计算影子长度
+                // tan(太阳高度角) = 指针高度 / 影子长度
+                // 影子长度 = 指针高度 / tan(太阳高度角)
+                const sunDir = sunPosition.clone().normalize();
+                const sunAltitude = Math.asin(sunDir.y); // 太阳高度角
+                
+                if (sunAltitude > 0.01) { // 避免除以零
+                    const shadowLength = gnomonHeight / Math.tan(sunAltitude);
+                    
+                    // 影子方向：与太阳水平方向相反
+                    // 太阳水平方向投影
+                    const sunHorizontal = new THREE.Vector3(sunDir.x, 0, sunDir.z).normalize();
+                    // 影子方向与太阳水平方向相反
+                    const shadowDir = sunHorizontal.clone().negate();
+                    
+                    // 影子终点
+                    const shadowEnd = new THREE.Vector3(
+                        shadowDir.x * shadowLength,
+                        0,
+                        shadowDir.z * shadowLength
+                    );
+                    
+                    // 创建影子线
+                    const shadowPoints = [
+                        new THREE.Vector3(0, 0, 0),
+                        shadowEnd
+                    ];
+                    const shadowLine = createLine(shadowPoints, 0x333333, 0.7, lineWidth * 3);
+                    group.add(shadowLine);
+                    
+                    // 在影子末端添加一个小标记
+                    const shadowTip = new THREE.Mesh(
+                        new THREE.SphereGeometry(1.5, 8, 8),
+                        new THREE.MeshBasicMaterial({ color: 0x333333 })
+                    );
+                    shadowTip.position.copy(shadowEnd);
+                    group.add(shadowTip);
+                }
+            }
+            
+            return group;
+        }
+
         function createHorizonSystem(lineWidth = 1) {
             // 清除旧的
             clearGroup(groups.horizon);
@@ -503,11 +615,19 @@
             groups.equatorLine.add(lowerCulmination);
             
             // 5. 绘制天轴和北极星
-            const axisPoints = [
-                new THREE.Vector3(0, -R * 1.2, 0),
+            // 地平面以上的天轴（亮色）
+            const axisPointsAbove = [
+                new THREE.Vector3(0, 0, 0),
                 new THREE.Vector3(0, R * 1.2, 0)
             ];
-            groups.equatorLine.add(createLine(axisPoints, 0xff0000, 1.0, lineWidth * 1.5));
+            groups.equatorLine.add(createLine(axisPointsAbove, 0xff0000, 1.0, lineWidth * 1.5));
+            
+            // 地平面以下的天轴（暗色）
+            const axisPointsBelow = [
+                new THREE.Vector3(0, -R * 1.2, 0),
+                new THREE.Vector3(0, 0, 0)
+            ];
+            groups.equatorLine.add(createLine(axisPointsBelow, 0x8b0000, 0.6, lineWidth * 1.5));
             
             const polaris = createSpriteText('北极星', '#ff0000', 15);
             polaris.position.set(0, R * 1.25, 0);
@@ -538,6 +658,79 @@
             }
         }
 
+        // 计算均时差（Equation of Time）
+        // 返回值：分钟（正数表示真太阳时比平太阳时慢，即太阳表慢）
+        // 参考：https://en.wikipedia.org/wiki/Equation_of_time
+        function getEquationOfTime(date) {
+            const d = new Date(date);
+            // 计算从J2000.0开始的天数
+            const J2000 = new Date(Date.UTC(2000, 0, 1, 12, 0, 0));
+            const n = (d.getTime() - J2000.getTime()) / 86400000;
+            
+            // 平黄经（度）
+            const L = (280.466 + 0.9856474 * n) % 360;
+            // 平近点角（度）
+            const g = (357.528 + 0.9856003 * n) % 360;
+            
+            // 转换为弧度
+            const Lrad = L * Math.PI / 180;
+            const grad = g * Math.PI / 180;
+            
+            // 黄道倾角（度）
+            const epsilon = 23.439 - 0.0000004 * n;
+            const epsilonRad = epsilon * Math.PI / 180;
+            
+            // 计算太阳黄经（视黄经）
+            // 太阳黄经 = 平黄经 + 中心差
+            const centerEquation = (1.915 * Math.sin(grad) + 0.020 * Math.sin(2 * grad)) * Math.PI / 180;
+            const lambda = Lrad + centerEquation;
+            
+            // 计算太阳的赤经（right ascension）
+            // tan(赤经) = tan(黄经) * cos(黄赤交角)
+            const alpha = Math.atan2(Math.sin(lambda) * Math.cos(epsilonRad), Math.cos(lambda));
+            
+            // 计算太阳的平赤经（mean right ascension）
+            // 平赤经 = 平黄经（转换为0-2π范围）
+            let L0 = Lrad;
+            while (L0 < 0) L0 += 2 * Math.PI;
+            while (L0 >= 2 * Math.PI) L0 -= 2 * Math.PI;
+            
+            // 均时差 = 平赤经 - 真赤经（转换为角度）
+            let E = L0 - alpha;
+            
+            // 归一化到 -π 到 π 范围
+            while (E > Math.PI) E -= 2 * Math.PI;
+            while (E < -Math.PI) E += 2 * Math.PI;
+            
+            // 转换为分钟（1弧度 = 13750.9871分钟，但更简单的是：360度=24小时=1440分钟）
+            // 所以 1弧度 = 1440 / (2π) 分钟 ≈ 229.18 分钟
+            const Eminutes = E * 180 / Math.PI * 4;
+            
+            return Eminutes;
+        }
+        
+        // 将平太阳时转换为真太阳时
+        // 输入：UTC时间，经度
+        // 输出：真太阳时（小时，0-24）
+        function getTrueSolarTime(utcDate, lon) {
+            // 地方平太阳时 = UTC + 经度/15
+            const lonOffsetHours = lon / 15;
+            let localMeanTime = (utcDate.getUTCHours() + utcDate.getUTCMinutes()/60 + utcDate.getUTCSeconds()/3600 + lonOffsetHours) % 24;
+            if (localMeanTime < 0) localMeanTime += 24;
+            
+            // 均时差（分钟）
+            // 均时差 = 平太阳时 - 真太阳时（单位：分钟）
+            // 当均时差为正时，真太阳时比平太阳时慢
+            const eot = getEquationOfTime(utcDate);
+            
+            // 真太阳时 = 地方平太阳时 - 均时差/60
+            let trueSolarTime = localMeanTime - eot / 60;
+            if (trueSolarTime < 0) trueSolarTime += 24;
+            if (trueSolarTime >= 24) trueSolarTime -= 24;
+            
+            return trueSolarTime;
+        }
+
         // 时间体系转换函数
         // 输入: 用户输入的日期时间, 时间体系, 经度
         // 输出: 对应的UTC时间
@@ -561,33 +754,23 @@
             }
         }
 
-        // 将UTC时间转换为指定时间体系用于显示（返回带分钟的时间字符串）
+        // 将UTC时间转换为指定时间体系用于显示
         function formatTimeForDisplay(utcDate, timeSystem, lon) {
-            let hours, minutes;
-            
             switch(timeSystem) {
                 case 'utc':
-                    hours = utcDate.getUTCHours();
-                    minutes = utcDate.getUTCMinutes();
-                    break;
+                    return utcDate.getUTCHours();
                 case 'local':
-                    // 地方时 = UTC + 经度/15小时（精确到分钟）
-                    const totalMinutes = utcDate.getUTCHours() * 60 + utcDate.getUTCMinutes() + (lon / 15) * 60;
-                    let localMinutes = totalMinutes % (24 * 60);
-                    if (localMinutes < 0) localMinutes += 24 * 60;
-                    hours = Math.floor(localMinutes / 60);
-                    minutes = Math.floor(localMinutes % 60);
-                    break;
+                    // 地方时 = UTC + 经度/15小时
+                    const lonOffset = lon / 15;
+                    let localHour = (utcDate.getUTCHours() + utcDate.getUTCMinutes()/60 + lonOffset) % 24;
+                    if (localHour < 0) localHour += 24;
+                    return Math.floor(localHour);
                 case 'standard':
                 default:
-                    // 标准时：使用本地时区
+                    // 标准时
                     const d = new Date(utcDate.getTime());
-                    hours = d.getHours();
-                    minutes = d.getMinutes();
-                    break;
+                    return d.getHours();
             }
-            
-            return `${hours}:${String(minutes).padStart(2, '0')}`;
         }
 
         function updateAstronomicalData() {
@@ -599,6 +782,19 @@
             // 使用内部存储的UTC时间
             const currDate = new Date(internalUTCDate);
             
+            // 更新真太阳时显示
+            const trueSolarTime = getTrueSolarTime(currDate, lon);
+            const trueHours = Math.floor(trueSolarTime);
+            const trueMinutes = Math.floor((trueSolarTime - trueHours) * 60);
+            const trueSeconds = Math.floor(((trueSolarTime - trueHours) * 60 - trueMinutes) * 60);
+            document.getElementById('true-solar-time-value').textContent = 
+                `${String(trueHours).padStart(2, '0')}:${String(trueMinutes).padStart(2, '0')}:${String(trueSeconds).padStart(2, '0')}`;
+            
+            // 更新均时差显示
+            const eot = getEquationOfTime(currDate);
+            const eotSign = eot >= 0 ? '+' : '';
+            document.getElementById('eot-value').textContent = `${eotSign}${eot.toFixed(1)}`;
+            
             // 更新天球赤道系统倾角
             // 默认天极(Y轴)在天顶。绕X轴旋转，使天极指向正北(+Z方向)，高度角等于纬度。
             groups.baseEqRotate.rotation.x = Math.PI / 2 - (lat * Math.PI / 180);
@@ -608,6 +804,7 @@
             clearGroup(groups.sunHour);
             clearGroup(groups.moonTraj);
             clearGroup(groups.moonHour);
+            clearGroup(groups.gnomon);
 
             // 获取线宽设置
             const sunLineWidth = parseFloat(document.getElementById('line-width-sun').value) || 2;
@@ -622,12 +819,33 @@
             const moonPoints = [];
 
             // 1. 生成高密度轨迹线 (每10分钟一个点)
-            // 轨迹以当前输入时间为中心，前后各12小时（共24小时）
-            const centerTime = currDate.getTime();
-            const startTime = centerTime - 12 * 3600000; // 前12小时
+            // 轨迹覆盖完整的24小时（从当天0点到24点）
+            // 使用与逐小时标记相同的dayStartUTC
+            let dayStartUTC;
+            if (timeSystem === 'utc') {
+                dayStartUTC = Date.UTC(
+                    currDate.getUTCFullYear(),
+                    currDate.getUTCMonth(),
+                    currDate.getUTCDate()
+                );
+            } else if (timeSystem === 'local') {
+                // 地方时0点对应的UTC时间
+                const lonOffsetMs = (lon / 15) * 3600000;
+                dayStartUTC = Date.UTC(
+                    currDate.getUTCFullYear(),
+                    currDate.getUTCMonth(),
+                    currDate.getUTCDate(),
+                    0, 0, 0, 0
+                ) - lonOffsetMs;
+            } else {
+                // 标准时：使用浏览器时区
+                const tempDate = new Date(currDate);
+                tempDate.setHours(0, 0, 0, 0);
+                dayStartUTC = tempDate.getTime();
+            }
             
             for (let m = 0; m <= 24 * 60; m += 10) {
-                const t = new Date(startTime + m * 60000);
+                const t = new Date(dayStartUTC + m * 60000);
                 
                 const sPos = SunCalc.getPosition(t, lat, lon);
                 sunPoints.push(toVector(sPos.azimuth, sPos.altitude, R));
@@ -656,7 +874,7 @@
                 groups.moonTraj.add(new THREE.Mesh(moonTubeGeo, new THREE.MeshBasicMaterial({ color: 0x00bfff })));
             }
 
-            // 2. 生成当前时刻的真实位置大球
+            // 2. 生成当前时刻的真实位置大球（精确到分钟）
             const currSPos = SunCalc.getPosition(currDate, lat, lon);
             const sunMesh = new THREE.Mesh(new THREE.SphereGeometry(3, 16, 16), new THREE.MeshBasicMaterial({ color: 0xffd700 }));
             sunMesh.position.copy(toVector(currSPos.azimuth, currSPos.altitude, R));
@@ -667,13 +885,21 @@
             moonMesh.position.copy(toVector(currMPos.azimuth, currMPos.altitude, R));
             groups.moonTraj.add(moonMesh);
 
-            // 3. 生成逐小时标记点和文本
-            // 以当前时间为中心，前后各12小时
-            for (let h = 0; h <= 24; h++) {
-                const t = new Date(startTime + h * 3600000);
+            // 2.5 创建日晷（立竿见影）
+            // 指针高度设为15，太阳位置使用当前太阳位置向量
+            const sunDir = toVector(currSPos.azimuth, currSPos.altitude, 1); // 单位向量
+            const gnomon = createGnomon(15, sunDir, gridLineWidth);
+            groups.gnomon.add(gnomon);
+
+            // 3. 生成逐小时标记点和文本（整点时间）
+            // 使用前面计算的dayStartUTC
+            
+            // 生成24个整点标记
+            for (let h = 0; h < 24; h++) {
+                const t = new Date(dayStartUTC + h * 3600000);
                 
-                // 根据时间体系计算显示的时间
-                const displayTime = formatTimeForDisplay(t, timeSystem, lon);
+                // 根据时间体系计算显示的小时数
+                const displayHour = h;
                 
                 // 太阳小时
                 const sP = SunCalc.getPosition(t, lat, lon);
@@ -682,7 +908,7 @@
                 sDot.position.copy(sVec);
                 groups.sunHour.add(sDot);
                 
-                const sLbl = createSpriteText(displayTime, '#ff8c00', 8);
+                const sLbl = createSpriteText(`${displayHour}:00`, '#ff8c00', 8);
                 sLbl.position.copy(sVec).multiplyScalar(1.08);
                 groups.sunHour.add(sLbl);
 
@@ -693,16 +919,57 @@
                 mDot.position.copy(mVec);
                 groups.moonHour.add(mDot);
 
-                const mLbl = createSpriteText(displayTime, '#00bfff', 8);
+                const mLbl = createSpriteText(`${displayHour}:00`, '#00bfff', 8);
                 mLbl.position.copy(mVec).multiplyScalar(1.08);
                 groups.moonHour.add(mLbl);
             }
+            
+            // 4. 标注真太阳时上中天位置（真太阳时12:00）
+            // 真太阳时12:00 = 地方平太阳时12:00 - 均时差
+            const eotMinutes = getEquationOfTime(currDate);
+            const eotHours = eotMinutes / 60;
+            
+            // 计算真太阳时12:00对应的UTC时间
+            // 真太阳时 = 地方平太阳时 - 均时差/60
+            // 真太阳时12:00时，地方平太阳时 = 12:00 + 均时差/60
+            const localMeanNoon = 12 + eotHours;
+            
+            // 地方平太阳时 = UTC + 经度/15
+            // 所以 UTC = 地方平太阳时 - 经度/15
+            const utcNoon = localMeanNoon - lon / 15;
+            
+            // 构建真太阳时12:00的UTC时间
+            const solarNoonUTC = new Date(dayStartUTC + utcNoon * 3600000);
+            
+            // 计算该时刻太阳位置
+            const solarNoonPos = SunCalc.getPosition(solarNoonUTC, lat, lon);
+            const solarNoonVec = toVector(solarNoonPos.azimuth, solarNoonPos.altitude, R);
+            
+            // 添加上中天标记（较大的红色标记）
+            const solarNoonMarker = new THREE.Mesh(
+                new THREE.SphereGeometry(1.5, 16, 16), 
+                new THREE.MeshBasicMaterial({ color: 0xff0000 })
+            );
+            solarNoonMarker.position.copy(solarNoonVec);
+            groups.sunHour.add(solarNoonMarker);
+            
+            // 添加上中天标签
+            const solarNoonLabel = createSpriteText('上中天', '#ff0000', 10);
+            solarNoonLabel.position.copy(solarNoonVec).multiplyScalar(1.12);
+            groups.sunHour.add(solarNoonLabel);
         }
 
         function bindEvents() {
-            // 纬度、经度变化时重新计算
+            // 纬度、经度变化时重新计算，并限制为3位小数
             ['input-lat', 'input-lon'].forEach(id => {
-                document.getElementById(id).addEventListener('change', updateAstronomicalData);
+                const input = document.getElementById(id);
+                input.addEventListener('change', function() {
+                    const value = parseFloat(this.value);
+                    if (!isNaN(value)) {
+                        this.value = value.toFixed(3);
+                    }
+                    updateAstronomicalData();
+                });
             });
             
             // 时间输入变化时：将输入的时间（基于当前时间体系）转换为UTC存储，然后重新计算
@@ -727,7 +994,8 @@
                 'toggle-moon-hour': groups.moonHour,
                 'toggle-horizon': groups.horizon,
                 'toggle-equatorial': groups.equatorialGrid,
-                'toggle-equator': groups.equatorLine
+                'toggle-equator': groups.equatorLine,
+                'toggle-gnomon': groups.gnomon
             };
 
             for (let id in toggles) {
@@ -743,6 +1011,11 @@
                 input.addEventListener('change', updateAstronomicalData);
             });
 
+            // 绑定动画控制按钮
+            document.getElementById('anim-play').addEventListener('click', startAnimation);
+            document.getElementById('anim-pause').addEventListener('click', pauseAnimation);
+            document.getElementById('anim-reset').addEventListener('click', resetAnimation);
+
             // 窗口缩放自适应
             window.addEventListener('resize', onWindowResize, false);
         }
@@ -757,6 +1030,58 @@
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
+        }
+
+        // 动画更新函数
+        function updateAnimation(timestamp) {
+            if (!animationState.isPlaying) return;
+            
+            // 控制帧率
+            if (timestamp - animationState.lastFrameTime < animationState.frameInterval) {
+                animationId = requestAnimationFrame(updateAnimation);
+                return;
+            }
+            animationState.lastFrameTime = timestamp;
+            
+            // 获取动画速度
+            const speed = parseInt(document.getElementById('anim-speed').value) || 10;
+            
+            // 更新时间（增加指定分钟数）
+            internalUTCDate = new Date(internalUTCDate.getTime() + speed * 60000);
+            
+            // 更新输入框显示
+            updateTimeInputDisplay();
+            
+            // 重新计算天文数据
+            updateAstronomicalData();
+            
+            // 继续动画
+            animationId = requestAnimationFrame(updateAnimation);
+        }
+
+        // 开始动画
+        function startAnimation() {
+            if (animationState.isPlaying) return;
+            animationState.isPlaying = true;
+            animationState.lastFrameTime = performance.now();
+            animationId = requestAnimationFrame(updateAnimation);
+        }
+
+        // 暂停动画
+        function pauseAnimation() {
+            animationState.isPlaying = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+
+        // 重置动画
+        function resetAnimation() {
+            pauseAnimation();
+            internalUTCDate = new Date();
+            updateTimeInputDisplay();
+            updateAstronomicalData();
         }
 
         // 启动程序
