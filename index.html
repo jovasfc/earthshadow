@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earth Shadow</title>
+  <script src="d3.v4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3-geo-projection@3/dist/d3-geo-projection.min.js"></script>
+  <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="topojson-client.js"></script>
+  <script src="versor.js"></script>
+  <script src="http://yangtianyi.3vkj.vip/earthshadow/versor-zooming.js"></script>
+  <script src="solar-calculator.min.js"></script>
+  <script src="solarcalculator.js"></script>
+  <script src="suncalc.js"></script>
+  <script src="moment.js"></script>
+  <script src="moment-timezone-with-data.js"></script>
+  <script src="tz.js"></script>
+  <script type="text/javascript" src="delta_time.js"></script>
+  <script type="text/javascript" src="http://yangtianyi.3vkj.vip/earthshadow/output3.js"></script>
+  <!-- <script src="https://d3js.org/d3.v3.min.js"></script> -->
+  <style>
+    html,body{
+      width:100%;
+      height:100%;
+      margin: 0px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    canvas{
+      display: block;
+      background-color: rgb(255, 255, 255);
+    }
+    
+    .panel {
+      background: rgba(20, 20, 25, 0.9);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      color: white;
+      transition: all 0.3s ease;
+    }
+    
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .panel-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #4dabf7;
+      margin: 0;
+    }
+    
+    .collapse-btn {
+      background: rgba(77, 171, 247, 0.2);
+      border: none;
+      color: #4dabf7;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .collapse-btn:hover {
+      background: rgba(77, 171, 247, 0.4);
+    }
+    
+    .panel-content {
+      max-height: 650px;
+      overflow-y: auto;
+      transition: max-height 0.3s ease;
+    }
+    
+    .panel-content.collapsed {
+      max-height: 0;
+      overflow: hidden;
+    }
+    
+    #menu-panel {
+      position: absolute;
+      left: 20px;
+      top: 10px;
+      width: 260px;
+      max-height: calc(100vh - 20px);
+      z-index: 10000000;
+      visibility: visible;
+    }
+
+    #menu-panel .panel-content {
+      position: relative;
+    }
+    
+    #datas-panel {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      width: 220px;
+      max-height: calc(100vh - 40px);
+      z-index: 10000000;
+      visibility: visible;
+    }
+    
+    #color-panel {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: 220px;
+      max-height: 300px;
+      z-index: 10000000;
+      visibility: visible;
+    }
+    
+    #zoom-controls {
+      position: fixed;
+      left: 290px;
+      top: 60px;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      z-index: 10000000;
+    }
+
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      margin: 0;
+    }
+
+    .zoom-btn:hover {
+      background: rgba(0, 0, 0, 0.9);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    #zoom-in {
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      border-bottom: none;
+    }
+
+    #zoom-out {
+      border-bottom: none;
+    }
+
+    #zoom-reset {
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
+    }
+    
+    .panel-section {
+      margin-bottom: 8px;
+    }
+
+    .panel-section-title {
+      font-size: 14px;
+      color: #adb5bd;
+      margin-bottom: 4px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+      font-size: 13px;
+      cursor: pointer;
+      width: 48%;
+    }
+
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .checkbox-group input {
+      cursor: pointer;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 13px;
+    }
+    
+    .radio-group input {
+      cursor: pointer;
+    }
+    
+    select, input[type="datetime-local"] {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    
+    select option {
+      background: #1a1a1a;
+      color: white;
+    }
+    
+    .btn-draw {
+      width: 100%;
+      padding: 8px;
+      background: #4dabf7;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+    
+    .btn-draw:hover {
+      background: #339af0;
+    }
+    
+    .btn-export {
+      width: 100%;
+      padding: 8px;
+      background: #51cf66;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.3s;
+    }
+    
+    .btn-export:hover {
+      background: #40c057;
+    }
+    
+    .btn-sunmoon {
+      width: 100%;
+      padding: 8px;
+      background: #ff922b;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.3s;
+    }
+    
+    .btn-sunmoon:hover {
+      background: #fd7e14;
+    }
+
+    .color-picker-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+      font-size: 11px;
+      width: 48%;
+    }
+    
+    .color-picker-label {
+      flex: 1;
+      color: #adb5bd;
+      font-size: 11px;
+    }
+    
+    .color-picker-input {
+      width: 28px;
+      height: 20px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      background: transparent;
+    }
+    
+    .color-picker-input::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+    
+    .color-picker-input::-webkit-color-swatch {
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 3px;
+    }
+    
+    .color-picker-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    
+    .color-scheme-section {
+      margin-bottom: 12px;
+    }
+    
+    .data-item {
+      font-size: 13px;
+      color: #ced4da;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .data-item hr {
+      width: 80%;
+      margin: 6px auto;
+      border-color: rgba(255,255,255,0.2);
+    }
+    
+    .warning-text {
+      font-size: 11px;
+      color: #ff6b6b;
+      text-align: center;
+    }
+    
+    .footer-text {
+      font-size: 11px;
+      color: #868e96;
+      text-align: center;
+      margin-top: 10px;
+    }
+    
+    #latlon {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      font-size: 14px;
+      color: #333;
+      background: rgba(255,255,255,0.9);
+      padding: 8px 15px;
+      border-radius: 6px;
+      z-index: 99999;
+    }
+  </style>
+  <link rel="shortcut icon" href="logo.ico"/>
+</head>
+<body>
+  <div>
+    <canvas id="can" style="position: absolute;">您的浏览器不支持canvas</canvas>
+    
+    <div id="latlon"></div>
+    
+    <div id="menu-panel" class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">控制面板</h3>
+        <button class="collapse-btn" id="menu-collapse-btn">−</button>
+      </div>
+      <div class="panel-content" id="menu-content">
+        <div class="panel-section">
+          <div class="panel-section-title">要素选择</div>
+          <div class="checkbox-row">
+            <div class="checkbox-group"><input type="checkbox" id="sealand" checked> 海陆分布</div>
+            <div class="checkbox-group"><input type="checkbox" id="country"> 行政界线</div>
+            <div class="checkbox-group"><input type="checkbox" id="chq" checked> 晨昏圈</div>
+            <div class="checkbox-group"><input type="checkbox" id="tz"> 实际时区</div>
+            <div class="checkbox-group"><input type="checkbox" id="show-location" checked> 当前地点</div>
+          </div>
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">等太阳高度</div>
+          <div class="radio-group">
+            <label><input type="radio" name="sun_d" value="none" checked> 无</label>
+            <label><input type="radio" name="sun_d" value="10"> 10°</label>
+            <label><input type="radio" name="sun_d" value="15"> 15°</label>
+            <label><input type="radio" name="sun_d" value="30"> 30°</label>
+            <label><input type="radio" name="sun_d" value="custom"> 自定义:</label>
+            <input type="number" id="sun_d_custom" min="1" max="90" value="10" style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 3px; border-radius: 4px;">
+          </div>
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">经纬网</div>
+          <div class="radio-group">
+            <label><input type="radio" name="grad" value="none"> 无</label>
+            <label><input type="radio" name="grad" value="10"> 10°</label>
+            <label><input type="radio" name="grad" value="15" checked> 15°</label>
+            <label><input type="radio" name="grad" value="30"> 30°</label>
+            <label><input type="radio" name="grad" value="custom"> 自定义:</label>
+            <input type="number" id="grad_custom" min="1" max="90" value="10" style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 3px; border-radius: 4px;">
+          </div>
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">时间选择</div>
+          <input type="datetime-local" step="1" id="datetime" style="width: 100%;">
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">时区选择</div>
+          <select id="shiqu" style="width: 100%; margin-bottom: 5px;">
+            <option id="t_0" value="+00:00">零时区</option>
+            <option id="e_1" value="+01:00">东一区</option>
+            <option id="e_2" value="+02:00">东二区</option>
+            <option id="e_3" value="+03:00">东三区</option>
+            <option id="e_4" value="+04:00">东四区</option>
+            <option id="e_5" value="+05:00">东五区</option>
+            <option id="e_6" value="+06:00">东六区</option>
+            <option id="e_7" value="+07:00">东七区</option>
+            <option id="e_8" value="+08:00" selected>东八区</option>
+            <option id="e_9" value="+09:00">东九区</option>
+            <option id="e_10" value="+10:00">东十区</option>
+            <option id="e_11" value="+11:00">东十一区</option>
+            <option id="e_12" value="+12:00">东十二区</option>
+            <option id="w_12" value="-12:00">西十二区</option>
+            <option id="w_11" value="-11:00">西十一区</option>
+            <option id="w_10" value="-10:00">西十区</option>
+            <option id="w_9" value="-09:00">西九区</option>
+            <option id="w_8" value="-08:00">西八区</option>
+            <option id="w_7" value="-07:00">西七区</option>
+            <option id="w_6" value="-06:00">西六区</option>
+            <option id="w_5" value="-05:00">西五区</option>
+            <option id="w_4" value="-04:00">西四区</option>
+            <option id="w_3" value="-03:00">西三区</option>
+            <option id="w_2" value="-02:00">西二区</option>
+            <option id="w_1" value="-01:00">西一区</option>
+          </select>
+          <div class="checkbox-group"><input type="checkbox" id="lixiang"> 实际时区</div>
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">投影</div>
+          <select id="prj" style="width: 100%;">
+            <option id="prj0" value="prj0">NaturalEarth1 自然地球</option>
+            <option id="prj1" value="prj1">Mercator 墨卡托</option>
+            <option id="prj2" value="prj2">Orthographic 正射</option>
+            <option id="prj3" value="prj3">Patterson 帕特森</option>
+            <option id="prj4" value="prj4">Azimuthal Equidistant 方位等距</option>
+            <option id="prj5" value="prj5">Robinson 罗宾逊</option>
+            <option id="prj6" value="prj6">Winkel Tripel 温克尔三重</option>
+            <option id="prj7" value="prj7">Mollweide 莫尔魏德</option>
+            <option id="prj8" value="prj8">Gall-Peters 高尔-彼得斯</option>
+            <option id="prj9" value="prj9">Albers 阿尔伯斯</option>
+            <option id="prj10" value="prj10">Conic Equal Area 圆锥等积</option>
+            <option id="prj11" value="prj11">Conic Conformal 圆锥等角</option>
+            <option id="prj12" value="prj12">Azimuthal Equal Area 方位等积</option>
+            <option id="prj13" value="prj13">Stereographic 球面</option>
+            <option id="prj14" value="prj14">Atlantis 亚特兰蒂斯</option>
+          </select>
+        </div>
+        
+        <div class="panel-section">
+          <div class="panel-section-title">地图中心</div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span style="font-size: 12px; color: #adb5bd;">经度(-λ):</span>
+            <input type="number" id="center-lon" min="-180" max="180" value="0" step="0.1" style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 3px; border-radius: 4px;">
+            <span style="font-size: 12px; color: #adb5bd;">纬度(φ):</span>
+            <input type="number" id="center-lat" min="-90" max="90" value="0" step="0.1" style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 3px; border-radius: 4px;">
+          </div>
+        </div>
+        
+        <button class="btn-draw" onclick="drawmap()">绘制</button>
+        <button class="btn-export" onclick="exportMap()">导出</button>
+        <button class="btn-sunmoon" onclick="openSunMoon()">太阳视运动</button>
+        
+        <div class="footer-text">移植自 桐乡市凤鸣高级中学 杨天逸老师的代码</div>
+        
+        <div id="zoom-controls">
+          <button class="zoom-btn" id="zoom-in" title="放大">+</button>
+          <button class="zoom-btn" id="zoom-out" title="缩小">−</button>
+          <button class="zoom-btn" id="zoom-reset" title="重置">⟲</button>
+        </div>
+      </div>
+    </div>
+    
+    <div id="datas-panel" class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">数据面板</h3>
+        <button class="collapse-btn" id="datas-collapse-btn">−</button>
+      </div>
+      <div class="panel-content" id="datas-content">
+        <div class="data-item" id="sun_point">太阳直射点经纬度</div>
+        <div class="data-item" id="sunup">日出时间</div>
+        <div class="data-item" id="sundown">日落时间</div>
+        <div class="data-item" id="sun_height">太阳高度</div>
+        <div class="data-item" id="sun_dir">太阳方位</div>
+        <hr>
+        <div class="data-item" id="moon_ph">月相 <img id="moon_ph_img" src="" style="width: 60px; height: 56px; vertical-align: middle; border: 0.5px solid rgb(201, 215, 234); border-radius: 4px;"></div>
+        <div class="data-item" id="moonup">月出时间</div>
+        <div class="data-item" id="moondown">月落时间</div>
+        <div class="data-item" id="moon_height">月亮高度</div>
+        <div class="data-item" id="moon_dir">月亮方位</div>
+        <hr>
+        <div class="data-item" id="projection_params">投影参数</div>
+        <div class="data-item" id="rotation_params">旋转: λ=0°, φ=0°, γ=0°</div>
+        <hr>
+        <div class="warning-text">注意：默认设置为当前地点和当前时间，</div>
+        <div class="warning-text">左侧面板可设置时间，地图中可选择地点。</div>
+        <div class="warning-text">数据有误差，仅作参考！</div>
+      </div>
+    </div>
+    
+    <div id="color-panel" class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">配色与线宽</h3>
+        <button class="collapse-btn" id="color-collapse-btn">−</button>
+      </div>
+      <div class="panel-content" id="color-content">
+        <div class="color-scheme-section">
+          <select id="color-scheme" style="width: 100%;">
+            <option value="default">默认配色</option>
+            <option value="dark">深色主题</option>
+            <option value="light">浅色主题</option>
+            <option value="blue">蓝色主题</option>
+            <option value="green">绿色主题</option>
+            <option value="warm">暖色主题</option>
+            <option value="purple">紫色主题</option>
+            <option value="pink">粉色主题</option>
+            <option value="teal">青色主题</option>
+            <option value="gray">灰色主题</option>
+            <option value="vintage">复古主题</option>
+            <option value="ocean">海洋主题</option>
+            <option value="forest">森林主题</option>
+            <option value="sunset">日落主题</option>
+            <option value="midnight">午夜主题</option>
+          </select>
+        </div>
+        <div class="color-picker-grid">
+          <div class="color-picker-row">
+            <span class="color-picker-label">海洋</span>
+            <input type="color" id="color-ocean" class="color-picker-input" value="#c8c8c8">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">陆地</span>
+            <input type="color" id="color-land" class="color-picker-input" value="#ffffff">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">经纬网</span>
+            <input type="color" id="color-grid" class="color-picker-input" value="#a0a0a0">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">时区</span>
+            <input type="color" id="color-timezone" class="color-picker-input" value="#c85050">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">边界</span>
+            <input type="color" id="color-border" class="color-picker-input" value="#808080">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">夜半球</span>
+            <input type="color" id="color-night" class="color-picker-input" value="#a0a0a0">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">高度线</span>
+            <input type="color" id="color-sun-height" class="color-picker-input" value="#ff6666">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">回归线</span>
+            <input type="color" id="color-tropic" class="color-picker-input" value="#a0a0a0">
+          </div>
+          <div class="color-picker-row">
+            <span class="color-picker-label">线宽</span>
+            <input type="number" id="stroke-width" min="0.1" max="5" step="0.1" value="1" style="width: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 3px; border-radius: 4px;">
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; margin-top: 10px;">
+          <button id="save-colors" style="flex: 1; padding: 6px; background: #4dabf7; border: none; border-radius: 4px; color: white; font-size: 12px; cursor: pointer;">保存配色</button>
+          <button id="load-colors" style="flex: 1; padding: 6px; background: #51cf66; border: none; border-radius: 4px; color: white; font-size: 12px; cursor: pointer;">导入配色</button>
+        </div>
+        <input type="file" id="color-file-input" accept=".json" style="display: none;">
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<script>
+    var can=document.getElementById("can");
+    can.width=innerWidth;
+    can.height=innerHeight;
+    var time;
+    var projection;
+    
+    var p_lon = 116.4;
+    var p_lat = 39.9;
+    var canvas_lonlat = [p_lon, p_lat];
+    var currentLocation = {
+      lon: p_lon,
+      lat: p_lat
+    };
+
+    var menuCollapseBtn = document.getElementById("menu-collapse-btn");
+    var menuContent = document.getElementById("menu-content");
+    var menuCollapsed = false;
+    
+    menuCollapseBtn.onclick = function() {
+      menuCollapsed = !menuCollapsed;
+      if (menuCollapsed) {
+        menuContent.classList.add("collapsed");
+        menuCollapseBtn.textContent = "+";
+      } else {
+        menuContent.classList.remove("collapsed");
+        menuCollapseBtn.textContent = "−";
+      }
+    };
+
+    var datasCollapseBtn = document.getElementById("datas-collapse-btn");
+    var datasContent = document.getElementById("datas-content");
+    var datasCollapsed = false;
+    
+    datasCollapseBtn.onclick = function() {
+      datasCollapsed = !datasCollapsed;
+      if (datasCollapsed) {
+        datasContent.classList.add("collapsed");
+        datasCollapseBtn.textContent = "+";
+      } else {
+        datasContent.classList.remove("collapsed");
+        datasCollapseBtn.textContent = "−";
+      }
+    };
+
+    var colorCollapseBtn = document.getElementById("color-collapse-btn");
+    var colorContent = document.getElementById("color-content");
+    var colorCollapsed = false;
+    
+    colorCollapseBtn.onclick = function() {
+      colorCollapsed = !colorCollapsed;
+      if (colorCollapsed) {
+        colorContent.classList.add("collapsed");
+        colorCollapseBtn.textContent = "+";
+      } else {
+        colorContent.classList.remove("collapsed");
+        colorCollapseBtn.textContent = "−";
+      }
+    };
+
+    var datetimeInput = document.getElementById("datetime");
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    var hours = String(now.getHours()).padStart(2, '0');
+    var minutes = String(now.getMinutes()).padStart(2, '0');
+    var seconds = String(now.getSeconds()).padStart(2, '0');
+    var datetimeString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    datetimeInput.value = datetimeString;
+
+    var sun_d_custom = document.getElementById("sun_d_custom");
+    sun_d_custom.addEventListener("input", function() {
+      document.querySelector('input[name="sun_d"][value="custom"]').checked = true;
+      if (typeof drawmap === 'function') {
+        drawmap();
+      }
+    });
+
+    var grad_custom = document.getElementById("grad_custom");
+    grad_custom.addEventListener("input", function() {
+      document.querySelector('input[name="grad"][value="custom"]').checked = true;
+      if (typeof drawmap === 'function') {
+        drawmap();
+      }
+    });
+
+    var sun_d_radios = document.querySelectorAll('input[name="sun_d"]');
+    sun_d_radios.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        if (typeof drawmap === 'function') {
+          drawmap();
+        }
+      });
+    });
+
+    var grad_radios = document.querySelectorAll('input[name="grad"]');
+    grad_radios.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        if (typeof drawmap === 'function') {
+          drawmap();
+        }
+      });
+    });
+
+    var featureCheckboxes = document.querySelectorAll('#sealand, #country, #chq, #tz, #show-location');
+    featureCheckboxes.forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      });
+    });
+
+    var zoomInBtn = document.getElementById("zoom-in");
+    var zoomOutBtn = document.getElementById("zoom-out");
+    var zoomResetBtn = document.getElementById("zoom-reset");
+    
+    zoomInBtn.addEventListener("click", function() {
+      if (typeof projection !== 'undefined') {
+        var currentScale = projection.scale();
+        projection.scale(currentScale * 1.2);
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      }
+    });
+    
+    zoomOutBtn.addEventListener("click", function() {
+      if (typeof projection !== 'undefined') {
+        var currentScale = projection.scale();
+        projection.scale(currentScale * 0.8);
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      }
+    });
+    
+    zoomResetBtn.addEventListener("click", function() {
+      if (typeof projection !== 'undefined' && typeof init_scale !== 'undefined') {
+        projection.scale(init_scale);
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      }
+    });
+
+    var prj_select = document.getElementById("prj");
+    prj_select.addEventListener("change", function() {
+      drawmap();
+    });
+
+    var centerLonInput = document.getElementById("center-lon");
+    var centerLatInput = document.getElementById("center-lat");
+    function updateMapCenter() {
+      if (typeof projection !== 'undefined') {
+        var lon = parseFloat(centerLonInput.value) || 0;
+        var lat = parseFloat(centerLatInput.value) || 0;
+        projection.rotate([-lon, -lat, 0]);
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      }
+    }
+    centerLonInput.addEventListener("change", updateMapCenter);
+    centerLatInput.addEventListener("change", updateMapCenter);
+
+    document.getElementById("save-colors").addEventListener("click", function() {
+      var colors = {
+        ocean: document.getElementById("color-ocean").value,
+        land: document.getElementById("color-land").value,
+        grid: document.getElementById("color-grid").value,
+        timezone: document.getElementById("color-timezone").value,
+        border: document.getElementById("color-border").value,
+        night: document.getElementById("color-night").value,
+        sunHeight: document.getElementById("color-sun-height").value,
+        tropic: document.getElementById("color-tropic").value,
+        strokeWidth: document.getElementById("stroke-width").value
+      };
+      var dataStr = JSON.stringify(colors, null, 2);
+      var dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      var exportName = 'map-colors.json';
+      var linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportName);
+      linkElement.click();
+    });
+
+    document.getElementById("load-colors").addEventListener("click", function() {
+      document.getElementById("color-file-input").click();
+    });
+
+    document.getElementById("color-file-input").addEventListener("change", function(e) {
+      var file = e.target.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+          try {
+            var colors = JSON.parse(event.target.result);
+            if (colors.ocean) document.getElementById("color-ocean").value = colors.ocean;
+            if (colors.land) document.getElementById("color-land").value = colors.land;
+            if (colors.grid) document.getElementById("color-grid").value = colors.grid;
+            if (colors.timezone) document.getElementById("color-timezone").value = colors.timezone;
+            if (colors.border) document.getElementById("color-border").value = colors.border;
+            if (colors.night) document.getElementById("color-night").value = colors.night;
+            if (colors.sunHeight) document.getElementById("color-sun-height").value = colors.sunHeight;
+            if (colors.tropic) document.getElementById("color-tropic").value = colors.tropic;
+            if (colors.strokeWidth) document.getElementById("stroke-width").value = colors.strokeWidth;
+            if (typeof window.render === 'function') {
+              window.render();
+            }
+          } catch (err) {
+            alert('无法解析配色文件');
+          }
+        };
+        reader.readAsText(file);
+      }
+      e.target.value = '';
+    });
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        p_lon = position.coords.longitude;
+        p_lat = position.coords.latitude;
+        canvas_lonlat = [p_lon, p_lat];
+        
+        currentLocation = {
+          lon: p_lon,
+          lat: p_lat
+        };
+        
+        console.log("定位成功:", p_lon, p_lat);
+      }, function(error) {
+        console.log("无法获取地理位置:", error);
+      });
+    }
+
+    var colorPickers = document.querySelectorAll('.color-picker-input');
+    colorPickers.forEach(function(picker) {
+      picker.addEventListener('input', function() {
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      });
+    });
+
+    var strokeWidthInput = document.getElementById('stroke-width');
+    if (strokeWidthInput) {
+      strokeWidthInput.addEventListener('input', function() {
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      });
+    }
+
+    var colorSchemes = {
+      default: {
+        ocean: '#c8c8c8',
+        land: '#ffffff',
+        grid: '#a0a0a0',
+        timezone: '#c85050',
+        border: '#808080',
+        night: '#a0a0a0',
+        sunHeight: '#ff6666',
+        tropic: '#a0a0a0'
+      },
+      dark: {
+        ocean: '#2c2c2c',
+        land: '#4a4a4a',
+        grid: '#666666',
+        timezone: '#ff6b6b',
+        border: '#8c8c8c',
+        night: '#1a1a1a',
+        sunHeight: '#ffd43b',
+        tropic: '#666666'
+      },
+      light: {
+        ocean: '#e9ecef',
+        land: '#ffffff',
+        grid: '#adb5bd',
+        timezone: '#fa5252',
+        border: '#868e96',
+        night: '#dee2e6',
+        sunHeight: '#ff6b6b',
+        tropic: '#adb5bd'
+      },
+      blue: {
+        ocean: '#1c7ed6',
+        land: '#ffffff',
+        grid: '#40a9ff',
+        timezone: '#ff7a45',
+        border: '#096dd9',
+        night: '#096dd9',
+        sunHeight: '#ffec3d',
+        tropic: '#40a9ff'
+      },
+      green: {
+        ocean: '#52c41a',
+        land: '#ffffff',
+        grid: '#73d13d',
+        timezone: '#ff4d4f',
+        border: '#389e0d',
+        night: '#389e0d',
+        sunHeight: '#fffb8f',
+        tropic: '#73d13d'
+      },
+      warm: {
+        ocean: '#fa8c16',
+        land: '#ffffff',
+        grid: '#d46b08',
+        timezone: '#cf1322',
+        border: '#ad6800',
+        night: '#d46b08',
+        sunHeight: '#fadb14',
+        tropic: '#d46b08'
+      },
+      purple: {
+        ocean: '#7950f2',
+        land: '#f3f0ff',
+        grid: '#9775fa',
+        timezone: '#e03131',
+        border: '#5f3dc4',
+        night: '#5f3dc4',
+        sunHeight: '#fcc419',
+        tropic: '#9775fa'
+      },
+      pink: {
+        ocean: '#e64980',
+        land: '#fff0f6',
+        grid: '#f06595',
+        timezone: '#228be6',
+        border: '#c2255c',
+        night: '#c2255c',
+        sunHeight: '#fab005',
+        tropic: '#f06595'
+      },
+      teal: {
+        ocean: '#0ca678',
+        land: '#e6fcf5',
+        grid: '#20c997',
+        timezone: '#fa5252',
+        border: '#087f5b',
+        night: '#087f5b',
+        sunHeight: '#ffd43b',
+        tropic: '#20c997'
+      },
+      gray: {
+        ocean: '#495057',
+        land: '#f8f9fa',
+        grid: '#868e96',
+        timezone: '#c92a2a',
+        border: '#343a40',
+        night: '#343a40',
+        sunHeight: '#f76707',
+        tropic: '#868e96'
+      },
+      vintage: {
+        ocean: '#8b7355',
+        land: '#f5f0e6',
+        grid: '#a68b5b',
+        timezone: '#8b0000',
+        border: '#6b5344',
+        night: '#6b5344',
+        sunHeight: '#d4a574',
+        tropic: '#a68b5b'
+      },
+      ocean: {
+        ocean: '#0066cc',
+        land: '#e6f2ff',
+        grid: '#3399ff',
+        timezone: '#ff6600',
+        border: '#004499',
+        night: '#004499',
+        sunHeight: '#ffcc00',
+        tropic: '#3399ff'
+      },
+      forest: {
+        ocean: '#2d5016',
+        land: '#f0f7e6',
+        grid: '#5a8a3a',
+        timezone: '#d9381e',
+        border: '#1a3009',
+        night: '#1a3009',
+        sunHeight: '#ffd700',
+        tropic: '#5a8a3a'
+      },
+      sunset: {
+        ocean: '#ff6b6b',
+        land: '#fff5f5',
+        grid: '#ff8787',
+        timezone: '#4dabf7',
+        border: '#fa5252',
+        night: '#fa5252',
+        sunHeight: '#ffd43b',
+        tropic: '#ff8787'
+      },
+      midnight: {
+        ocean: '#1a1b4b',
+        land: '#e8e8f0',
+        grid: '#4a4b8c',
+        timezone: '#ff6b6b',
+        border: '#0f0f2d',
+        night: '#0f0f2d',
+        sunHeight: '#fcc2d7',
+        tropic: '#4a4b8c'
+      }
+    };
+
+    var colorSchemeSelect = document.getElementById("color-scheme");
+    colorSchemeSelect.addEventListener("change", function() {
+      applyColorScheme(this.value);
+    });
+
+    window.applyColorScheme = function(schemeName) {
+      var scheme = colorSchemes[schemeName];
+      if (scheme) {
+        document.getElementById("color-ocean").value = scheme.ocean;
+        document.getElementById("color-land").value = scheme.land;
+        document.getElementById("color-grid").value = scheme.grid;
+        document.getElementById("color-timezone").value = scheme.timezone;
+        document.getElementById("color-border").value = scheme.border;
+        document.getElementById("color-night").value = scheme.night;
+        document.getElementById("color-sun-height").value = scheme.sunHeight;
+        document.getElementById("color-tropic").value = scheme.tropic;
+        
+        setTimeout(function() {
+          if (typeof window.render === 'function') {
+            window.render();
+          }
+        }, 100);
+      }
+    };
+
+    function hexToRgba(hex, alpha) {
+      var r = parseInt(hex.slice(1, 3), 16);
+      var g = parseInt(hex.slice(3, 5), 16);
+      var b = parseInt(hex.slice(5, 7), 16);
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    function getColor(id) {
+      var hex = document.getElementById(id).value;
+      return hex;
+    }
+
+  var can=document.getElementById("can");
+  d3.json("./110m.json",function(error,w){
+    window.land=topojson.feature(w,w.objects.land);
+    drawmap();
+  })
+
+  function drawmap(){
+    var canvas = d3.select("canvas"),
+    width = canvas.property("width"),
+    height = canvas.property("height"),
+    context = canvas.node().getContext("2d");
+    var ty_value=document.getElementById("prj").options[document.getElementById("prj").selectedIndex].value;
+    pc_flag=IsPC();              //判断PC端或移动端
+    if (pc_flag==false){
+      if (ty_value=="prj0"){
+        projection=d3.geoNaturalEarth1()    //自然投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1); 
+      }else if (ty_value=="prj1"){
+        projection=d3.geoMercator()   //墨卡托投影 Equirectangular()
+            .scale(width/6.5)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj2"){
+        projection = d3.geoOrthographic()     // 立体投影
+            .scale(width/2-10)
+            .translate([width/2, height/2.5])
+            .precision(0.1)  
+      }else if(ty_value=="prj3"){
+        projection=d3.geoEquirectangular()   //等距投影
+            .scale(width/6.5)
+            .translate([width / 2, height / 2.5])
+            .precision(0.1);  
+      }else if(ty_value=="prj4"){
+        projection=d3.geoAzimuthalEquidistant()   //方位等距投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj5"){
+        projection=d3.geoRobinson()   //罗宾逊投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj6"){
+        projection=d3.geoWinkel3()   //温克尔三重投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj7"){
+        projection=d3.geoMollweide()   //莫尔魏德投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj8"){
+        projection=d3.geoCylindricalEqualArea()   //高尔-彼得斯投影
+            .scale(width/6.5)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj9"){
+        projection=d3.geoAlbers()   //阿尔伯斯投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj10"){
+        projection=d3.geoConicEqualArea()   //圆锥等面积投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj11"){
+        projection=d3.geoConicConformal()   //圆锥等角投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj12"){
+        projection=d3.geoAzimuthalEqualArea()   //方位等面积投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj13"){
+        projection=d3.geoStereographic()   //球面立体投影
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj14"){
+        projection=d3.geoMollweide()   //亚特兰蒂斯投影（Mollweide的斜向形式）
+            .rotate([30, 45, 0])
+            .scale(width/5.8)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }
+    }else if(pc_flag==true){
+      if (ty_value=="prj0"){
+        projection=d3.geoNaturalEarth1()    //自然投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1); 
+      }else if (ty_value=="prj1"){
+        projection=d3.geoMercator()   //墨卡托投影 Equirectangular()
+            .scale(height/7)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj2"){
+        projection = d3.geoOrthographic()     // 立体投影
+            .scale(height/2.5)
+            .translate([width/2, height/2])
+            .precision(0.1)  
+      }else if(ty_value=="prj3"){
+        projection=d3.geoEquirectangular()   //等距投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);  
+      }else if(ty_value=="prj4"){
+        projection=d3.geoAzimuthalEquidistant()   //方位等距投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj5"){
+        projection=d3.geoRobinson()   //罗宾逊投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj6"){
+        projection=d3.geoWinkel3()   //温克尔三重投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj7"){
+        projection=d3.geoMollweide()   //莫尔魏德投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj8"){
+        projection=d3.geoCylindricalEqualArea()   //高尔-彼得斯投影
+            .scale(height/7)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj9"){
+        projection=d3.geoAlbers()   //阿尔伯斯投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj10"){
+        projection=d3.geoConicEqualArea()   //圆锥等面积投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj11"){
+        projection=d3.geoConicConformal()   //圆锥等角投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj12"){
+        projection=d3.geoAzimuthalEqualArea()   //方位等面积投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj13"){
+        projection=d3.geoStereographic()   //球面立体投影
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }else if(ty_value=="prj14"){
+        projection=d3.geoMollweide()   //亚特兰蒂斯投影（Mollweide的斜向形式）
+            .rotate([ 30,-45, 90])
+            .scale(height/4)
+            .translate([width / 2, height / 2])
+            .precision(0.1);
+      }
+    }
+
+    var centerLon = parseFloat(document.getElementById("center-lon").value) || 0;
+    var centerLat = parseFloat(document.getElementById("center-lat").value) || 0;
+    if (ty_value !== "prj14") {
+      projection.rotate([-centerLon, -centerLat, 0]);
+    }
+
+    updateRotationParams();
+
+  var path = d3.geoPath()    
+      .projection(projection)
+      .context(context);
+
+  // canvas.call(d3.drag()
+  //     .on("start", dragstarted)
+  //     .on("drag", dragged))
+  //     .on("click",clicked);     //地图选点   
+  
+  canvas
+    .call(d3.zoom().on("start",zoomstarted).scaleExtent([0.5, 10]).translateExtent([[0,0], [width, height]]).on("zoom",zoomedd))
+    .on("click",clicked)
+
+// var zoom = d3
+//   .zoom()
+//   .on("zoom start end", zoomed)
+//   .scaleExtent([1, 3])
+//   .translateExtent([[0,0], [width, height]]);
+
+// canvas.call(zoom)
+      // .on("zomm start end" , function(){
+      //   d3.event.sourceEvent.stopPropagation();
+      // })
+
+var init_scale = projection.scale(),
+init_translate = projection.translate();
+
+// function zoomed() {
+//   var t = d3.event.transform;
+//   projection.scale(init_scale * t.k)
+//     .translate(t.apply(init_translate));
+//     render();
+// }
+
+  var v0, // Mouse position in Cartesian coordinates at start of drag gesture.
+      r0, // Projection rotation as Euler angles at start.
+      q0; // Projection rotation as versor at start.
+
+  // function dragstarted() {
+  //   v0 = versor.cartesian(projection.invert(d3.mouse(this)));
+  //   r0 = projection.rotate();
+  //   q0 = versor(r0);
+  // }
+
+  // function dragged() {
+  //   var v1 = versor.cartesian(projection.rotate(r0).invert(d3.mouse(this))),
+  //       q1 = versor.multiply(q0, versor.delta(v0, v1)),
+  //       r1 = versor.rotation(q1);
+  //   projection.rotate(r1);
+  //   render();
+  // }
+
+  function zoomstarted(){
+      v0 = versor.cartesian(projection.invert(d3.mouse(this)));
+      r0 = projection.rotate();
+      q0 = versor(r0);
+      window.render()
+}
+
+function zoomedd(){
+  var t = d3.event.transform;
+  projection.scale(init_scale * t.k)
+    .translate(init_translate);
+  var v1 = versor.cartesian(projection.rotate(r0).invert(d3.mouse(this))),
+      q1 = versor.multiply(q0, versor.delta(v0, v1)),
+      r1 = versor.rotation(q1);
+  projection.rotate(r1);
+  updateRotationParams();
+  window.render();
+}
+
+  function updateRotationParams(){
+    var rotate = projection.rotate();
+    var lambda = rotate[0].toFixed(1);
+    var phi = rotate[1] ? rotate[1].toFixed(1) : '0.0';
+    var gamma = rotate[2] ? rotate[2].toFixed(1) : '0.0';
+    document.getElementById("rotation_params").innerHTML = "旋转: λ=" + lambda + "°, φ=" + phi + "°, γ=" + gamma + "°";
+    
+    var centerLonInput = document.getElementById("center-lon");
+    var centerLatInput = document.getElementById("center-lat");
+    if (centerLonInput && centerLatInput) {
+      centerLonInput.value = (-rotate[0]).toFixed(1);
+      centerLatInput.value = (-rotate[1]).toFixed(1);
+    }
+  }
+
+  function updateLocationData(){
+        if(document.getElementById("lixiang").checked==false){                 //求取理论时区
+          var sq=document.getElementById("shiqu");
+          var sq_value=sq.options[sq.selectedIndex].value;   //时区计算
+          var dayOfYear=(date)=>Math.floor((date-new Date(date.getFullYear(),0,0))/(1000*60*60*24))   //函数：计算年日序
+          bb_time=new Date(document.getElementById("datetime").value+sq_value);   //时区换算
+          var day_index=dayOfYear(new Date(bb_time));
+          bb_time=new Date(new Date(new Date(bb_time).getTime()+-1*delta_time[day_index]["mm"]*60*1000+-1*delta_time[day_index]["ss"]*1000))         //测试：真太阳时转换为平太阳时 3月25日测试
+          var place_latlon=projection([canvas_lonlat[0],canvas_lonlat[1]]);
+          var place_lon=canvas_lonlat[0];       // 获取所求点经度
+          if (Math.abs(place_lon % 15) <= 7.5){        
+            timezone=parseInt(place_lon/15);    //求时区
+          }else{
+            if(place_lon >=0){
+              timezone=parseInt(place_lon/15)+1;   //东时区
+            }else{
+              timezone=parseInt(place_lon/15)-1;    //西时区
+            }
+          }
+          timezone_name="("+timezone+")";
+        }else if(document.getElementById("lixiang").checked==true){         //求取实际时区
+          var sq=document.getElementById("shiqu");
+          var sq_value=sq.options[sq.selectedIndex].value;   //时区计算
+          var dayOfYear=(date)=>Math.floor((date-new Date(date.getFullYear(),0,0))/(1000*60*60*24))   //函数：计算年日序
+          var time=document.getElementById("datetime").value+sq_value;   //时区换算
+          var day_index=dayOfYear(new Date(time));
+          var time=new Date(new Date(new Date(time).getTime()+-1*delta_time[day_index]["mm"]*60*1000+-1*delta_time[day_index]["ss"]*1000))         //测试：真太阳时转换为平太阳时 3月25日测试
+
+          var aa=moment.tz(time,tzlookup(canvas_lonlat[1],canvas_lonlat[0]));
+          bb_time=new Date(aa.format()); //换算为当地时间
+          var cc=moment("2014-06-01T00:00:00Z");
+          var dd=cc.tz(tzlookup(canvas_lonlat[1],canvas_lonlat[0])).format().slice(-6,);
+          timezone=parseInt(dd.split(":")[0])+parseInt(dd.split(":")[1])/60;
+          timezone_name=tzlookup(canvas_lonlat[1],canvas_lonlat[0])+"&nbsp;&nbsp;"+"("+timezone+")"
+          
+        }
+        window.render();
+        div_latlon=document.getElementById("latlon");
+        function display_latlon(){
+            lat=canvas_lonlat[1].toFixed(1);
+            lon=canvas_lonlat[0].toFixed(1);
+            if (lon<0){
+                lon=-1*lon+"°W"
+            }else if(lon>0){
+                lon=lon+"°E"
+            }else if(lon==0){
+                lon=lon+"°"
+            };
+            if (lat<0){
+                lat=-1*lat+"°S"
+            }else if(lat>0){
+                lat=lat+"°N"
+            }else if(lat==0){
+                lat=lat+"°"
+            };
+            return lon+"&nbsp;&nbsp;"+lat+"&nbsp;"+timezone_name
+        };
+        div_latlon.innerHTML=display_latlon();
+        console.log(canvas_lonlat);
+
+        
+
+      function convertByUTCOffset(originalTimeStr, targetUTCOffset) {          //时差转换函数
+          /**
+           * 将北京时间转换为指定 UTC 偏移的时区时间
+           * @param {string} originalTimeStr - 原始时间字符串
+           * @param {number} targetUTCOffset - 目标时区相对于 UTC 的偏移（小时），如 -5 表示 UTC-5
+           * @returns {string} 目标时区的时间字符串
+           */
+          
+          // 解析为北京时间
+          let beijingTime = moment.tz(originalTimeStr, "Asia/Shanghai");
+          
+          // 计算时差：目标偏移 - 北京偏移(+8)
+          let timeDifference = targetUTCOffset - 8;
+          
+          // 计算目标时间
+          let targetTime = beijingTime.clone().add(timeDifference, 'hours');
+          
+          // 格式化输出，显示时区偏移
+          let offsetSign = targetUTCOffset >= 0 ? '+' : '-';
+          let offsetHours = Math.abs(targetUTCOffset);
+          let offsetStr = `${offsetSign}${offsetHours.toString().padStart(2, '0')}:00`;
+          
+          return `${targetTime.format('HH:mm')} (UTC${offsetStr})`;
+      }
+
+        var sunup=document.getElementById("sunup");    //日出时间
+        var sunrise_8_data=SunCalc.getTimes(bb_time, canvas_lonlat[1], canvas_lonlat[0]).sunrise;  //日出时间北京时间
+        // var targetTime = moment.tz(sunrise_8_data).clone().add(timezone-8, 'hours').format('HH:mm')
+        sunup.innerHTML="日出:"+convertByUTCOffset(sunrise_8_data,timezone);   //输出日出时间
+
+        var sundown=document.getElementById("sundown");    //日落时间
+        var sundown_8_data=SunCalc.getTimes(bb_time, canvas_lonlat[1], canvas_lonlat[0]).sunset;  //日落时间北京时间
+        sundown.innerHTML="日落:"+convertByUTCOffset(sundown_8_data,timezone);   //输出日落时间     
+
+        var moonup=document.getElementById("moonup")   
+        var moonup_8_data=SunCalc.getMoonTimes(bb_time, canvas_lonlat[1], canvas_lonlat[0]).rise;  //月出时间北京时间
+        moonup.innerHTML="月出:"+convertByUTCOffset(moonup_8_data,timezone);   //输出月出时间
+
+        var moondown=document.getElementById("moondown")   
+        var moondown_8_data=SunCalc.getMoonTimes(bb_time, canvas_lonlat[1], canvas_lonlat[0]).set;  //月落时间北京时间
+        moondown.innerHTML="月落:"+convertByUTCOffset(moondown_8_data,timezone);   //输落月落时间
+
+
+ 
+        var sun_height=document.getElementById("sun_height");
+        sun_height.innerHTML="太阳高度:"+(SunCalc.getPosition(bb_time, canvas_lonlat[1], canvas_lonlat[0]).altitude*(180/Math.PI)).toFixed(2)+"°";   //输出此刻太阳高度角
+        
+        var sun_dir=document.getElementById("sun_dir");
+        var sun_dir_azi=SunCalc.getPosition(bb_time, canvas_lonlat[1], canvas_lonlat[0]).azimuth*(180/Math.PI);
+        var sun_dir_azi_Deg=((((sun_dir_azi+180) % 360) + 360) % 360).toFixed(2);
+
+        var moon_height=document.getElementById("moon_height");
+        moon_height.innerHTML="月亮高度:"+(SunCalc.getMoonPosition(bb_time, canvas_lonlat[1], canvas_lonlat[0]).altitude*(180/Math.PI)).toFixed(2)+"°";   //输出此刻月亮高度角
+        
+        var moon_dir=document.getElementById("moon_dir");
+        var moon_dir_azi=SunCalc.getMoonPosition(bb_time, canvas_lonlat[1], canvas_lonlat[0]).azimuth*(180/Math.PI);
+        var moon_dir_azi_Deg=((((moon_dir_azi+180) % 360) + 360) % 360).toFixed(2);
+
+        var moon_ph_img=document.getElementById("moon_ph_img");
+        var moon_phase=SunCalc.getMoonIllumination(bb_time);  //月相参数
+        console.log(moon_phase);
+        function phaseToLunarDay(phase) {       //根据月相phase大致计算农历日期
+            // 确保 phase 在 0-1 之间
+            phase = phase - Math.floor(phase);
+            return Math.round(phase * 29.53) + 1;
+        };
+        var img_path="./moon/"+phaseToLunarDay(moon_phase.phase)+".png";
+        moon_ph_img.src=img_path;
+
+
+
+        function getDirectionDescription(azimuthDeg){
+          if (azimuthDeg <= 45 && azimuthDeg > 0){
+              let azi_delt=azimuthDeg-0;
+              let azi_str="北偏东"+azi_delt.toFixed(2)+"°";
+              return azi_str;
+          };
+          if(azimuthDeg > 45 && azimuthDeg <= 90){
+            let azi_delt=90-azimuthDeg;
+            let azi_str="东偏北"+azi_delt.toFixed(2)+"°";
+            return azi_str;
+          };
+          if(azimuthDeg > 90 && azimuthDeg <= 135){
+            let azi_delt=azimuthDeg-90;
+            let azi_str="东偏南"+azi_delt.toFixed(2)+"°";
+            return azi_str;
+          };
+          if(azimuthDeg > 135 && azimuthDeg <= 180){
+            let azi_delt=180-azimuthDeg;
+            let azi_str="南偏东"+azi_delt.toFixed(2)+"°";
+            return azi_str;
+          };
+          if(azimuthDeg > 180 && azimuthDeg <= 225){
+            let azi_delt=azimuthDeg-180;
+            let azi_str="南偏西"+azi_delt.toFixed(2)+"°";
+            return azi_str;
+          };
+          if(azimuthDeg > 225 && azimuthDeg <= 270){
+            let azi_delt=270-azimuthDeg;
+            let azi_str="西偏南"+azi_delt.toFixed(2)+"°";
+            return azi_str;
+          };
+          if(azimuthDeg > 270 && azimuthDeg <= 315){
+            let azi_delt=azimuthDeg-270;
+            let azi_str="西偏北"+azi_delt.toFixed(2)+"°";
+            return azi_str;
+          };
+          if(azimuthDeg > 315 && azimuthDeg <360){
+            let azi_delt=360-azimuthDeg;
+            let azi_str="北偏西"+azi_delt.toFixed(2)+"°";
+            return azi_str;
+          };
+          if(azimuthDeg==0||azimuthDeg==360){
+            let azi_str="正北";
+            return azi_str;
+          };
+          if(azimuthDeg==90){
+            let azi_str="正东";
+            return azi_str;
+          };
+          if(azimuthDeg==180){
+            let azi_str="正南";
+            return azi_str;
+          };
+          if(azimuthDeg==270){
+            let azi_str="正西";
+            return azi_str;
+          };
+        };
+
+        sun_dir.innerHTML="太阳方位:"+getDirectionDescription(sun_dir_azi_Deg);   //输出此刻太阳方位角
+        moon_dir.innerHTML="月亮方位:"+getDirectionDescription(moon_dir_azi_Deg);   //输出此刻月亮方位角
+  }
+
+  function clicked(){
+        canvas_xy=d3.mouse(this);      //获取canvas点击画布坐标
+        canvas_lonlat=projection.invert(canvas_xy);    //获取canvas点击的经纬度坐标
+        canvas_1_xy=projection([canvas_lonlat[0],canvas_lonlat[1]]);
+        p_lon=canvas_lonlat[0];
+        p_lat=canvas_lonlat[1];
+        
+        currentLocation = {
+          lon: p_lon,
+          lat: p_lat
+        };
+        
+        updateLocationData();
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+  }
+
+  // d3.json("./110m.json",function(error,w){
+
+  //   land=topojson.feature(w,w.objects.land)
+  // })
+
+  d3.json("./World_Time_Zones.geojson", function(error, world) {
+    if (error) throw error;
+
+    var sphere = {type: "Sphere"},
+    
+    TimeZones = world;
+
+    d3.json("./contries.geojson", function(error, countriesData) {
+      if (error) throw error;
+      countries = countriesData;
+
+    var grad=document.getElementsByName("grad");
+    var grad_value = "none";
+    for(var ii=0;ii<grad.length;ii=ii+1){
+      if (grad[ii].checked==true){
+        grad_value = grad[ii].value;
+        break;
+      }
+    }
+    
+    if (grad_value != "none") {
+      var grad_step;
+      if (grad_value == "custom") {
+        grad_step = parseFloat(document.getElementById("grad_custom").value);
+      } else {
+        grad_step = parseFloat(grad_value);
+      }
+      var gridGenerator=d3.geoGraticule()
+                .step([grad_step,grad_step])
+      ()
+      var n_hgx=d3.geoCircle()      //绘制北回归线
+      .radius(66.5)
+      .center([120,-90])
+      ()
+      var s_hgx=d3.geoCircle()      //绘制南回归线
+          .radius(66.5)
+          .center([120,90])
+      ()
+      var s_jq=d3.geoCircle()      //绘制南极圈
+          .radius(23.5)
+          .center([120,90])
+      ()
+      var n_jq=d3.geoCircle()      //绘制北极圈
+          .radius(23.5)
+          .center([120,-90])
+      ()
+    }
+    // var gridGenerator=d3.geoGraticule10();   //经纬线
+
+        
+    // var gridGenerator=d3.geoGraticule()
+    //             .step([30,30])
+    // ()
+
+    var sq=document.getElementById("shiqu");
+    var sq_value=sq.options[sq.selectedIndex].value;   //时区计算
+    time=document.getElementById("datetime").value+sq_value;   //时区换算
+    var dayOfYear=(date)=>Math.floor((date-new Date(date.getFullYear(),0,0))/(1000*60*60*24))   //函数：计算年日序
+    // time=new Date(new Date(time).getTime()+5*60*1000+22*1000)         //测试：真太阳时转换为平太阳时 3月25日测试
+    var day_index=dayOfYear(new Date(time));                     //获取年日序
+    time=new Date(new Date(time).getTime()+-1*delta_time[day_index]["mm"]*60*1000+-1*delta_time[day_index]["ss"]*1000)  //真太阳时转为平太阳时：真太阳=平太阳时+时差
+    console.log(time);
+
+    // center_lon=parseInt(sq_value)*15    //中央经线
+
+    // time_origin=document.getElementById("datetime").value;
+  //   var time="2021-12-04T07:53+00:00"
+
+    function sun(){               //计算太阳直射点的相反数！
+      var now = new Date(time);   //设置时间与时区
+      var day = new Date(+now).setUTCHours(0,0,0,0);
+      console.log(time,now,day);
+      var t=solar.century(now);
+      var longitude=(day-now)/864e5*360-180;
+      return [(longitude-solar.equationOfTime(t)/4)+180,(solar.declination(t))*-1];
+      }
+
+    var night=d3.geoCircle()      //绘制晨昏圈
+          .radius(90)
+          .center(sun())
+      ()
+    
+
+    var sun_point=document.getElementById("sun_point"); //显示太阳直射点地理坐标
+    function sun_point_text(){
+      // sun_point_lon=normalizeLongitude(sun()[0].toFixed(3)) ;
+      sun_point_lon=((sun()[0].toFixed(3) + 180) % 360 + 360) % 360 - 180   //算出直射点经度
+      // function normalizeLongitude(lon) {
+      //     return ((lon + 180) % 360 + 360) % 360 - 180;
+      // }
+      sun_point_lat=-1*sun()[1].toFixed(2);
+      if (sun_point_lon<0){
+        sun_point_lon_b=-1*sun_point_lon.toFixed(2)+"°W"
+      }else if(sun_point_lon>0){
+        sun_point_lon_b=sun_point_lon.toFixed(2)+"°E"
+      }else if(sun_point_lon==0){
+        sun_point_lon_b=180-sun_point_lon+"°"
+      };
+      if (sun_point_lat<0){
+        sun_point_lat=-1*sun_point_lat+"°S"
+      }else if(sun_point_lat>0){
+        sun_point_lat=sun_point_lat+"°N"
+      }else if(lat==0){
+        sun_point_lat=sun_point_lat+"°"
+      };
+      return "直射点:"+sun_point_lat+"&nbsp;&nbsp;"+sun_point_lon_b+"&nbsp;"
+    }
+    sun_point.innerHTML=sun_point_text();
+
+    // sunup.innerHTML="日出时间:8:00(+1)";
+
+    var sun_d=document.getElementsByName("sun_d");
+    var sun_d_value = "none";
+    for(var ii=0;ii<sun_d.length;ii=ii+1){
+      if (sun_d[ii].checked==true){
+        sun_d_value = sun_d[ii].value;
+        break;
+      }
+    }
+    
+    if (sun_d_value != "none") {
+      var sun_h_delt;
+      if (sun_d_value == "custom") {
+        sun_h_delt = parseFloat(document.getElementById("sun_d_custom").value);
+      } else {
+        sun_h_delt = parseFloat(sun_d_value);
+      }
+      var sun_h=[];
+      for(var jj=0;jj<90/sun_h_delt;jj=jj+1){
+          sun_h[jj]=d3.geoCircle()
+        .radius(90-sun_h_delt*jj)
+        .center([-1*(180-sun()[0]),-1*sun()[1]])
+        ()
+      }       
+    }
+
+
+
+    window.render = function() {
+      var strokeWidth = parseFloat(document.getElementById("stroke-width").value) || 1;
+      
+      context.clearRect(0, 0, width, height);
+      if(document.getElementById("sealand").checked==true){
+        context.beginPath(), path(sphere), context.strokeStyle=("rgba(0,0,0,1)"),context.setLineDash([]),context.lineWidth=strokeWidth,context.stroke(), context.fillStyle=hexToRgba(getColor("color-ocean"), 0.5),context.fill();
+      }else if(document.getElementById("sealand").checked==false){
+        context.beginPath(), path(sphere), context.strokeStyle=("rgba(0,0,0,1)"),context.setLineDash([]),context.lineWidth=strokeWidth,context.stroke(), context.fillStyle=hexToRgba(getColor("color-ocean"), 1),context.fill();
+      }
+      if(document.getElementById("sealand").checked==true){
+        context.beginPath(), path(land), context.fillStyle = hexToRgba(getColor("color-land"), 1), context.fill(),context.lineWidth=strokeWidth,context.setLineDash([]),context.strokeStyle=("rgba(0,0,0,1)"),context.stroke();
+      }
+      if(document.getElementById("country").checked==true){
+        context.beginPath(), path(countries), context.fillStyle = "rgba(255,255,255,0)", context.fill(),context.lineWidth=strokeWidth,context.setLineDash([]),context.strokeStyle=hexToRgba(getColor("color-border"), 1),context.stroke();
+      }
+      if(document.getElementById("chq").checked==true){
+        context.beginPath(), path(night), context.fillStyle=hexToRgba(getColor("color-night"), 0.5), context.fill(),context.setLineDash([]),context.lineWidth=strokeWidth,context.strokeStyle="rgba(0,0,0,1)",context.stroke();
+      }
+      if(typeof gridGenerator != "undefined"){
+        context.beginPath(), path(gridGenerator),context.strokeStyle=hexToRgba(getColor("color-grid"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke();
+      }
+      if(typeof n_hgx != "undefined"){
+        context.beginPath(), path(n_hgx),context.strokeStyle=hexToRgba(getColor("color-tropic"), 1),context.lineWidth=strokeWidth,context.setLineDash([5]),context.stroke();
+      }
+      if(typeof s_hgx != "undefined"){
+        context.beginPath(), path(s_hgx),context.strokeStyle=hexToRgba(getColor("color-tropic"), 1),context.lineWidth=strokeWidth,context.setLineDash([5]),context.stroke();
+      }
+      if(typeof s_jq != "undefined"){
+        context.beginPath(), path(s_jq),context.strokeStyle=hexToRgba(getColor("color-tropic"), 1),context.lineWidth=strokeWidth,context.setLineDash([5]),context.stroke();
+      }
+      if(typeof n_jq != "undefined"){
+        context.beginPath(), path(n_jq),context.strokeStyle=hexToRgba(getColor("color-tropic"), 1),context.lineWidth=strokeWidth,context.setLineDash([5]),context.stroke();
+      }
+      if(document.getElementById("tz").checked==true){
+        context.beginPath(), path(TimeZones), context.strokeStyle=hexToRgba(getColor("color-timezone"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke(), context.fillStyle="rgba(255,255,255,0)",context.fill();
+      }
+      if(typeof sun_h != "undefined"){
+        for(var kk=0;kk<sun_h.length;kk=kk+1){
+          context.beginPath(), path(sun_h[kk]),context.strokeStyle=hexToRgba(getColor("color-sun-height"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke();
+        }
+      }
+      
+      if (currentLocation && document.getElementById("show-location").checked) {
+        var point = projection([currentLocation.lon, currentLocation.lat]);
+        if (point) {
+          var x = point[0];
+          var y = point[1];
+          var size = 4;
+          
+          context.fillStyle = "#ff0000";
+          
+          context.beginPath();
+          context.arc(x, y, size, 0, 2 * Math.PI);
+          context.fill();
+          
+          context.beginPath();
+          context.arc(x, y, size + 5, 0, 2 * Math.PI);
+          context.strokeStyle = "rgba(255, 0, 0, 0.3)";
+          context.lineWidth = 2;
+          context.stroke();
+        }
+      }
+      
+      updateRotationParams();
+  };
+
+    var colorSchemeSelect = document.getElementById("color-scheme");
+    if (colorSchemeSelect && colorSchemeSelect.value && colorSchemeSelect.value !== 'default') {
+      window.applyColorScheme(colorSchemeSelect.value);
+    } else {
+      window.render();
+    }
+    
+    updateLocationData();
+    });
+  });
+}
+
+
+
+      //   svg.append("path")
+      //       .datum(d3.geoCircle().center([0, 90]).radius(90))
+      //       .attr("class", "horizon")
+      //       .attr("d", path);
+
+      //   svg.append("path")
+      //       .datum(d3.geoGraticule())
+      //       .attr("class", "graticule")
+      //       .attr("d", path);
+
+      //   var ticksAzimuth = svg.append("g")
+      //       .attr("class", "ticks ticks--azimuth");
+
+      //   ticksAzimuth.selectAll("line")
+      //       .data(d3.range(360))
+      //     .enter().append("line")
+      //       .each(function(d) {
+      //         var p0 = projection([d, 0]),
+      //             p1 = projection([d, d % 10 ? -1 : -2]);
+
+      //         d3.select(this)
+      //             .attr("x1", p0[0])
+      //             .attr("y1", p0[1])
+      //             .attr("x2", p1[0])
+      //             .attr("y2", p1[1]);
+      //       });
+
+      //   ticksAzimuth.selectAll("text")
+      //       .data(d3.range(0, 360, 10))
+      //     .enter().append("text")
+      //       .each(function(d) {
+      //         var p = projection([d, -4]);
+
+      //         d3.select(this)
+      //             .attr("x", p[0])
+      //             .attr("y", p[1]);
+      //       })
+      //       .attr("dy", ".35em")
+      //       .text(function(d) { return d === 0 ? "N" : d === 90 ? "E" : d === 180 ? "S" : d === 270 ? "W" : d + "°"; });
+
+      //   svg.append("g")
+      //       .attr("class", "ticks ticks--elevation")
+      //     .selectAll("text")
+      //       .data(d3.range(10, 91, 10))
+      //     .enter().append("text")
+      //       .each(function(d) {
+      //         var p = projection([0, d]);
+
+      //         d3.select(this)
+      //             .attr("x", p[0])
+      //             .attr("y", p[1]);
+      //       })
+      //       .attr("dy", ".35em")
+      //       .text(function(d) { return d + "°"; });
+
+      //   navigator.geolocation.getCurrentPosition(located);
+
+      //   function located(geolocation) {
+      //   //   var solar = solarCalculator([geolocation.coords.longitude, geolocation.coords.latitude]);
+      //     var solar = solarCalculator([120, -30]);
+
+      //     d3.select("#waiting").transition()
+      //         .style("opacity", 0)
+      //         .remove();
+
+      //     svg.insert("path", ".sphere")
+      //         .attr("class", "solar-path");
+
+      //     var sun = svg.insert("g", ".sphere")
+      //         .attr("class", "sun");
+
+      //     sun.append("circle")
+      //         .attr("r", 5);
+
+      //     sun.append("text")
+      //         .attr("class", "sun-label sun-label--azimuth")
+      //         .attr("dy", ".71em")
+      //         .attr("y", 10);
+
+      //     sun.append("text")
+      //         .attr("class", "sun-label sun-label--elevation")
+      //         .attr("dy", "1.81em")
+      //         .attr("y", 10);
+
+      //     var tickSun = svg.insert("g", ".sphere")
+      //         .attr("class", "ticks ticks--sun")
+      //       .selectAll("g");
+
+      //     refresh();
+
+      //     setInterval(refresh, 1000);
+
+      //     function refresh() {
+      //       // var now = new Date,
+      //       var now= new Date("2022-01-23T11:53+00:00"),
+      //           start = d3.timeDay.floor(now),
+      //           end = d3.timeDay.offset(start, 1);
+
+      //       svg.select(".solar-path")
+      //           .datum({type: "LineString", coordinates: d3.timeMinutes(start, end).map(solar.position)})
+      //           .attr("d", path);
+
+      //       sun
+      //           .datum(solar.position(now))
+      //           .attr("transform", function(d) { return "translate(" + projection(d) + ")"; });
+
+      //       sun.select(".sun-label--azimuth")
+      //           .text(function(d) { return formatAngle(d[0]) + " φ"; });
+
+      //       sun.select(".sun-label--elevation")
+      //           .text(function(d) { return formatAngle(d[1]) + " θ"; });
+
+      //       tickSun = tickSun
+      //         .data(d3.timeHours(start, end), function(d) { return +d; });
+
+      //       tickSun.exit().remove();
+
+      //       var tickSunEnter = tickSun.enter().append("g")
+      //           .attr("transform", function(d) { return "translate(" + projection(solar.position(d)) + ")"; });
+
+      //       tickSunEnter.append("circle")
+      //           .attr("r", 2.5);
+
+      //       tickSunEnter.append("text")
+      //           .attr("dy", "-.31em")
+      //           .attr("y", -6)
+      //           .text(formatTime);
+      //     }
+      //   }
+
+      //   d3.select(self.frameElement).style("height", height + "px");
+
+      //   function flippedStereographic(λ, φ)  {
+      //     var cosλ = Math.cos(λ),
+      //         cosφ = Math.cos(φ),
+      //         k = 1 / (1 + cosλ * cosφ);
+      //     return [
+      //       k * cosφ * Math.sin(λ),
+      //       -k * Math.sin(φ)
+      //     ];
+      //   }
+
+function IsPC(){               //判断移动端或PC端
+        var userAgentInfo = navigator.userAgent;
+        var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");  
+        var flag = true;  
+        for (var v = 0; v < Agents.length; v++) {  
+            if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }  
+        }  
+        return flag;  
+  }
+
+var download_btn=document.getElementById("download_btn");
+download_btn.onclick=() =>{
+  var alink = document.createElement("a");
+  var can_img=document.getElementById("can");
+  var img_url=can_img.toDataURL("img/png");
+  var img_blob=this.base64ToBlob(img_url);
+  var evt=document.createEvent("HTMLEvents");
+  evt.initEvent("click",true,true);
+  alink.href=URL.createObjectURL(img_blob);
+  alink.click();
+}
+
+function base64ToBlob(code) {
+  let parts = code.split(';base64,');
+  let contentType = parts[0].split(':')[1];
+  let raw = window.atob(parts[1]);
+  let rawLength = raw.length;
+
+  let uInt8Array = new Uint8Array(rawLength);
+
+  for (let i = 0; i < rawLength; ++i) {
+    uInt8Array[i] = raw.charCodeAt(i);
+  }
+  return new Blob([uInt8Array], {type: contentType});
+}
+
+var sun_point=document.getElementById("sun_point");
+sun_point.innerHTML=sun()[0];
+
+function exportMap() {
+  console.log('exportMap called');
+  console.log('JSZip:', typeof JSZip);
+  console.log('d3:', typeof d3);
+  console.log('projection:', typeof projection);
+  
+  if (typeof JSZip === 'undefined') {
+    alert('JSZip库未加载，请检查网络连接');
+    return;
+  }
+  
+  if (typeof d3 === 'undefined') {
+    alert('D3库未加载，请检查网络连接');
+    return;
+  }
+  
+  if (typeof projection === 'undefined') {
+    alert('地图投影未初始化，请先绘制地图');
+    return;
+  }
+  
+  try {
+    var canvas = document.getElementById("can");
+    var width = canvas.width;
+    var height = canvas.height;
+    
+    var strokeWidth = parseFloat(document.getElementById("stroke-width").value) || 1;
+    
+    var zip = new JSZip();
+    
+    var pngData = canvas.toDataURL("image/png").split(',')[1];
+    zip.file("map.png", pngData, {base64: true});
+    
+    var svg = d3.select("body").append("svg")
+      .attr("xmlns", "http://www.w3.org/2000/svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("viewBox", "0 0 " + width + " " + height);
+    
+    var svgPath = d3.geoPath().projection(projection);
+  
+  var oceanColor = getColor("color-ocean");
+  var landColor = getColor("color-land");
+  var gridColor = getColor("color-grid");
+  var timezoneColor = getColor("color-timezone");
+  var borderColor = getColor("color-border");
+  var nightColor = getColor("color-night");
+  var sunHeightColor = getColor("color-sun-height");
+  var tropicColor = getColor("color-tropic");
+  
+  var sq = document.getElementById("shiqu");
+  var sq_value = sq.options[sq.selectedIndex].value;
+  var exportTime = document.getElementById("datetime").value + sq_value;
+  var dayOfYear = (date) => Math.floor((date - new Date(date.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+  var day_index = dayOfYear(new Date(exportTime));
+  exportTime = new Date(new Date(exportTime).getTime() + -1 * delta_time[day_index]["mm"] * 60 * 1000 + -1 * delta_time[day_index]["ss"] * 1000);
+  
+  function sun() {
+    var now = new Date(exportTime);
+    var day = new Date(+now).setUTCHours(0, 0, 0, 0);
+    var t = solar.century(now);
+    var longitude = (day - now) / 864e5 * 360 - 180;
+    return [(longitude - solar.equationOfTime(t) / 4) + 180, (solar.declination(t)) * -1];
+  }
+  
+  var night = d3.geoCircle()
+    .radius(90)
+    .center(sun())
+    ();
+  
+  var grad = document.getElementsByName("grad");
+  var grad_value = "none";
+  for(var i=0;i<grad.length;i=i+1){
+    if (grad[i].checked==true){
+      grad_value = grad[i].value;
+      break;
+    }
+  }
+  
+  var gridGenerator;
+  var n_hgx, s_hgx, s_jq, n_jq;
+  
+  if (grad_value != "none") {
+    var grad_step;
+    if (grad_value == "custom") {
+      grad_step = parseFloat(document.getElementById("grad_custom").value);
+    } else {
+      grad_step = parseFloat(grad_value);
+    }
+    gridGenerator = d3.geoGraticule()
+      .step([grad_step,grad_step])
+      ();
+    n_hgx = d3.geoCircle()
+      .radius(66.5)
+      .center([120,-90])
+      ();
+    s_hgx = d3.geoCircle()
+      .radius(66.5)
+      .center([120,90])
+      ();
+    s_jq = d3.geoCircle()
+      .radius(23.5)
+      .center([120,90])
+      ();
+    n_jq = d3.geoCircle()
+      .radius(23.5)
+      .center([120,-90])
+      ();
+  }
+  
+  var sun_d = document.getElementsByName("sun_d");
+  var sun_d_value = "none";
+  for(var ii=0;ii<sun_d.length;ii=ii+1){
+    if (sun_d[ii].checked==true){
+      sun_d_value = sun_d[ii].value;
+      break;
+    }
+  }
+  
+  var sun_h;
+  if (sun_d_value != "none") {
+    var sun_h_delt;
+    if (sun_d_value == "custom") {
+      sun_h_delt = parseFloat(document.getElementById("sun_d_custom").value);
+    } else {
+      sun_h_delt = parseFloat(sun_d_value);
+    }
+    sun_h = [];
+    for(var jj=0;jj<90/sun_h_delt;jj=jj+1){
+      sun_h[jj]=d3.geoCircle()
+        .radius(90-sun_h_delt*jj)
+        .center([-1*(180-sun()[0]),-1*sun()[1]])
+        ();
+    }
+  }
+  
+  svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", oceanColor);
+  
+  if(document.getElementById("sealand").checked) {
+    svg.append("path")
+      .datum(land)
+      .attr("d", svgPath)
+      .attr("fill", landColor)
+      .attr("stroke", "rgba(0,0,0,1)")
+      .attr("stroke-width", strokeWidth);
+  }
+  
+  if(document.getElementById("country").checked) {
+    svg.append("path")
+      .datum(countries)
+      .attr("d", svgPath)
+      .attr("fill", "rgba(255,255,255,0)")
+      .attr("stroke", borderColor)
+      .attr("stroke-width", strokeWidth);
+  }
+  
+  if(document.getElementById("chq").checked) {
+    svg.append("path")
+      .datum(night)
+      .attr("d", svgPath)
+      .attr("fill", nightColor)
+      .attr("fill-opacity", 0.5)
+      .attr("stroke", "rgba(0,0,0,1)")
+      .attr("stroke-width", strokeWidth);
+  }
+  
+  if(typeof gridGenerator != "undefined") {
+    svg.append("path")
+      .datum(gridGenerator)
+      .attr("d", svgPath)
+      .attr("fill", "none")
+      .attr("stroke", gridColor)
+      .attr("stroke-width", strokeWidth);
+  }
+  
+  if(typeof n_hgx != "undefined") {
+    svg.append("path")
+      .datum(n_hgx)
+      .attr("d", svgPath)
+      .attr("fill", "none")
+      .attr("stroke", tropicColor)
+      .attr("stroke-width", strokeWidth)
+      .attr("stroke-dasharray", "5,5");
+  }
+  
+  if(typeof s_hgx != "undefined") {
+    svg.append("path")
+      .datum(s_hgx)
+      .attr("d", svgPath)
+      .attr("fill", "none")
+      .attr("stroke", tropicColor)
+      .attr("stroke-width", strokeWidth)
+      .attr("stroke-dasharray", "5,5");
+  }
+  
+  if(typeof s_jq != "undefined") {
+    svg.append("path")
+      .datum(s_jq)
+      .attr("d", svgPath)
+      .attr("fill", "none")
+      .attr("stroke", tropicColor)
+      .attr("stroke-width", strokeWidth)
+      .attr("stroke-dasharray", "5,5");
+  }
+  
+  if(typeof n_jq != "undefined") {
+    svg.append("path")
+      .datum(n_jq)
+      .attr("d", svgPath)
+      .attr("fill", "none")
+      .attr("stroke", tropicColor)
+      .attr("stroke-width", strokeWidth)
+      .attr("stroke-dasharray", "5,5");
+  }
+  
+  if(document.getElementById("tz").checked) {
+    svg.append("path")
+      .datum(TimeZones)
+      .attr("d", svgPath)
+      .attr("fill", "rgba(255,255,255,0)")
+      .attr("stroke", timezoneColor)
+      .attr("stroke-width", strokeWidth);
+  }
+  
+  if(typeof sun_h != "undefined") {
+    for(var kk=0;kk<sun_h.length;kk=kk+1){
+      svg.append("path")
+        .datum(sun_h[kk])
+        .attr("d", svgPath)
+        .attr("fill", "none")
+        .attr("stroke", sunHeightColor)
+        .attr("stroke-width", strokeWidth);
+    }
+  }
+  
+  var svgContent = svg.node().outerHTML;
+  svg.remove();
+  
+  zip.file("map.svg", svgContent);
+  
+  var datetime = document.getElementById("datetime").value;
+  var timestamp = datetime.replace(/[:T]/g, '-').replace(/[:.]/g, '');
+  
+  zip.generateAsync({type: "blob"}).then(function(content) {
+    var link = document.createElement("a");
+    link.href = URL.createObjectURL(content);
+    link.download = "map_" + timestamp + ".zip";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }).catch(function(error) {
+    console.error('导出失败:', error);
+    alert('导出失败: ' + error.message);
+  });
+  } catch (error) {
+    console.error('导出过程中出错:', error);
+    alert('导出过程中出错: ' + error.message);
+  }
+}
+
+function openSunMoon() {
+  var lat = p_lat;
+  var lon = p_lon;
+  var datetime = document.getElementById("datetime").value;
+  var url = "sun-moon.html?lat=" + lat + "&lon=" + lon + "&time=" + encodeURIComponent(datetime);
+  window.open(url, "_blank");
+}
+
+</script>
