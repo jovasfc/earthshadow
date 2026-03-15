@@ -129,8 +129,38 @@
             </div>
         </div>
 
-        <hr>
-        <h2>线宽设置</h2>
+        <h2 style="margin-top:10px;">天体位置</h2>
+        <div class="control-group" style="display:flex; gap:6px; margin-bottom:6px;">
+            <div style="flex:1; background:#fff8dc; padding:6px; border-radius:3px; border:1px solid #f0e68c;">
+                <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                    <span class="color-box" style="background:#ff8c00; width:10px; height:10px;"></span>太阳
+                </div>
+                <div style="font-size:11px; line-height:1.4;">
+                    <div>方位: <span id="sun-azimuth" style="font-weight:bold; color:#ff8c00;">--°</span></div>
+                    <div>高度: <span id="sun-altitude" style="font-weight:bold; color:#ff8c00;">--°</span></div>
+                </div>
+            </div>
+            <div style="flex:1; background:#e6f3ff; padding:6px; border-radius:3px; border:1px solid #b0d4f1;">
+                <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                    <span class="color-box" style="background:#00bfff; width:10px; height:10px;"></span>月球
+                </div>
+                <div style="font-size:11px; line-height:1.4;">
+                    <div>方位: <span id="moon-azimuth" style="font-weight:bold; color:#00bfff;">--°</span></div>
+                    <div>高度: <span id="moon-altitude" style="font-weight:bold; color:#00bfff;">--°</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="control-group" style="background:#f5f5f5; padding:6px; border-radius:3px; border:1px solid #ddd; margin-bottom:6px;">
+            <div style="font-size:11px; color:#666; margin-bottom:3px;">
+                <span class="color-box" style="background:#8b4513; width:10px; height:10px;"></span>立竿见影
+            </div>
+            <div style="display:flex; gap:8px; font-size:12px;">
+                <div>杆长: <span id="gnomon-height" style="font-weight:bold; color:#8b4513;">15</span></div>
+                <div>影长: <span id="shadow-length" style="font-weight:bold; color:#8b4513;">--</span></div>
+            </div>
+        </div>
+
+        <h2 style="margin-top:10px;">线宽设置</h2>
         <div class="control-group" style="display:flex; gap:6px;">
             <div style="flex:1;">
                 <label style="font-size:11px;">经纬线</label>
@@ -187,8 +217,7 @@
             </label>
         </div>
         
-        <hr style="margin:6px 0;">
-        <h2>动画控制</h2>
+        <h2 style="margin-top:10px;">动画控制</h2>
         <div class="control-group" style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
             <button id="anim-play" style="flex:1; padding:5px; background:#4CAF50; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;">▶ 播放</button>
             <button id="anim-pause" style="flex:1; padding:5px; background:#ff9800; color:white; border:none; border-radius:3px; cursor:pointer; font-size:12px;">⏸ 暂停</button>
@@ -556,6 +585,45 @@
             const sSprite = createSpriteText('S', '#3cb371'); sSprite.position.set(0, 0, -off); groups.horizon.add(sSprite);
             const eSprite = createSpriteText('E', '#3cb371'); eSprite.position.set(-off, 0, 0); groups.horizon.add(eSprite);
             const wSprite = createSpriteText('W', '#3cb371'); wSprite.position.set(off, 0, 0); groups.horizon.add(wSprite);
+            
+            // 添加方位角度标记（每30度一个标记）
+            for (let angle = 0; angle < 360; angle += 30) {
+                const rad = angle * Math.PI / 180;
+                // 方位角：0度为北(+Z)，顺时针增加
+                // 北为0度(0°, +Z)，东为90度(90°, -X)，南为180度(180°, -Z)，西为270度(270°, +X)
+                // 从北顺时针：0°->北(+Z), 90°->东(-X), 180°->南(-Z), 270°->西(+X)
+                const x = -R * Math.sin(rad);  // 东为负X，西为正X
+                const z = R * Math.cos(rad);   // 北为正Z，南为负Z
+                
+                // 刻度线
+                const tickLength = (angle % 90 === 0) ? 8 : 5; // 主方位刻度更长
+                const tickStart = new THREE.Vector3(x * 0.95, 0, z * 0.95);
+                const tickEnd = new THREE.Vector3(x * (0.95 - tickLength/R), 0, z * (0.95 - tickLength/R));
+                groups.horizon.add(createLine([tickStart, tickEnd], 0x3cb371, 0.8, lineWidth * 0.8));
+                
+                // 角度标注（只在非主方位显示数字）
+                if (angle % 90 !== 0) {
+                    const labelSprite = createSpriteText(`${angle}°`, '#3cb371', 10);
+                    labelSprite.position.set(x * 0.88, 0, z * 0.88);
+                    groups.horizon.add(labelSprite);
+                }
+            }
+            
+            // 添加内圈方位表（罗盘样式）
+            const innerR = R * 0.7;
+            groups.horizon.add(createCircle(innerR, 0x3cb371, 0.3, lineWidth * 0.5));
+            
+            // 内圈方位标记
+            for (let angle = 0; angle < 360; angle += 45) {
+                const rad = angle * Math.PI / 180;
+                const x = -innerR * Math.sin(rad);  // 东为负X
+                const z = innerR * Math.cos(rad);   // 北为正Z
+                
+                // 小刻度
+                const tickStart = new THREE.Vector3(x * 1.05, 0, z * 1.05);
+                const tickEnd = new THREE.Vector3(x * 0.95, 0, z * 0.95);
+                groups.horizon.add(createLine([tickStart, tickEnd], 0x3cb371, 0.6, lineWidth * 0.6));
+            }
         }
 
         function createEquatorialSystem(lineWidth = 1) {
@@ -885,10 +953,31 @@
             moonMesh.position.copy(toVector(currMPos.azimuth, currMPos.altitude, R));
             groups.moonTraj.add(moonMesh);
 
+            // 更新面板上的天体位置显示
+            // 太阳方位角和高度角
+            const sunAzimuthDeg = ((currSPos.azimuth * 180 / Math.PI) + 180) % 360; // 转换为0-360度，北为0
+            const sunAltitudeDeg = currSPos.altitude * 180 / Math.PI;
+            document.getElementById('sun-azimuth').textContent = sunAzimuthDeg.toFixed(1) + '°';
+            document.getElementById('sun-altitude').textContent = sunAltitudeDeg.toFixed(1) + '°';
+            
+            // 月球方位角和高度角
+            const moonAzimuthDeg = ((currMPos.azimuth * 180 / Math.PI) + 180) % 360;
+            const moonAltitudeDeg = currMPos.altitude * 180 / Math.PI;
+            document.getElementById('moon-azimuth').textContent = moonAzimuthDeg.toFixed(1) + '°';
+            document.getElementById('moon-altitude').textContent = moonAltitudeDeg.toFixed(1) + '°';
+            
+            // 计算影长
+            const gnomonHeight = 15;
+            let shadowLength = 0;
+            if (sunAltitudeDeg > 0) {
+                shadowLength = gnomonHeight / Math.tan(currSPos.altitude);
+            }
+            document.getElementById('shadow-length').textContent = shadowLength > 0 ? shadowLength.toFixed(1) : '无影';
+
             // 2.5 创建日晷（立竿见影）
             // 指针高度设为15，太阳位置使用当前太阳位置向量
             const sunDir = toVector(currSPos.azimuth, currSPos.altitude, 1); // 单位向量
-            const gnomon = createGnomon(15, sunDir, gridLineWidth);
+            const gnomon = createGnomon(gnomonHeight, sunDir, gridLineWidth);
             groups.gnomon.add(gnomon);
 
             // 3. 生成逐小时标记点和文本（整点时间）
