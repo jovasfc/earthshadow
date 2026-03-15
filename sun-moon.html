@@ -91,11 +91,136 @@
             color: #666;
             pointer-events: none;
         }
+        /* 左侧绘图工具栏 */
+        #draw-toolbar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 44px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            z-index: 100;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+        .draw-tool-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+            padding: 0;
+        }
+        .draw-tool-btn:hover {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+        .draw-tool-btn.active {
+            background: #2196F3;
+            border-color: #1976D2;
+            color: white;
+        }
+        .draw-tool-divider {
+            height: 1px;
+            background: #ddd;
+            margin: 2px 0;
+        }
+        .draw-color-picker {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+        }
+        .draw-color-picker input {
+            width: 150%;
+            height: 150%;
+            transform: translate(-16%, -16%);
+            cursor: pointer;
+        }
+        .draw-width-slider {
+            width: 36px;
+            height: 60px;
+            writing-mode: bt-lr;
+            -webkit-appearance: slider-vertical;
+            appearance: slider-vertical;
+            margin: 0;
+        }
+        .tool-category {
+            font-size: 9px;
+            color: #999;
+            text-align: center;
+            margin: 2px 0;
+        }
+        .draw-width-slider {
+            width: 44px;
+            height: 80px;
+            writing-mode: bt-lr; /* IE */
+            -webkit-appearance: slider-vertical;
+            appearance: slider-vertical;
+        }
+        #draw-options-panel {
+            position: absolute;
+            top: 10px;
+            left: 80px;
+            width: 150px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none;
+        }
+        #draw-options-panel.visible {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <div id="loading">正在加载 3D 引擎和天文数据...</div>
     <div id="canvas-container"></div>
+    
+    <!-- 左侧绘图工具栏 -->
+    <div id="draw-toolbar">
+        <button class="draw-tool-btn" id="tool-select" title="选择/浏览 (V)">✋</button>
+        <div class="tool-category">基础</div>
+        <button class="draw-tool-btn" id="tool-pen" title="画笔 (P)">✏️</button>
+        <button class="draw-tool-btn" id="tool-line" title="直线 (L)">📏</button>
+        <button class="draw-tool-btn" id="tool-text" title="文本 (T)">📝</button>
+        <div class="tool-category">形状</div>
+        <button class="draw-tool-btn" id="tool-rect" title="矩形 (R)">▭</button>
+        <button class="draw-tool-btn" id="tool-ellipse" title="椭圆 (E)">⬭</button>
+        <button class="draw-tool-btn" id="tool-arrow" title="箭头 (A)">➜</button>
+        <div class="tool-category">3D图形</div>
+        <button class="draw-tool-btn" id="tool-cube" title="立方体 (C)">🟦</button>
+        <button class="draw-tool-btn" id="tool-sphere" title="球体 (S)">🔵</button>
+        <button class="draw-tool-btn" id="tool-cylinder" title="圆柱体 (Y)">🔷</button>
+        <button class="draw-tool-btn" id="tool-cone" title="圆锥体 (N)">🔺</button>
+        <div class="tool-category">编辑</div>
+        <button class="draw-tool-btn" id="tool-erase" title="橡皮擦 (E)">🧹</button>
+        <button class="draw-tool-btn" id="tool-undo" title="撤销 (Ctrl+Z)">↩️</button>
+        <button class="draw-tool-btn" id="tool-clear" title="清空 (Delete)">🗑️</button>
+        <div class="draw-tool-divider"></div>
+        <div class="draw-color-picker" title="颜色">
+            <input type="color" id="toolbar-color" value="#ff0000">
+        </div>
+        <input type="range" class="draw-width-slider" id="toolbar-width" min="1" max="10" step="0.5" value="2" title="线宽">
+    </div>
     
     <div id="ui-panel">
         <h2>天文参数设置</h2>
@@ -241,6 +366,7 @@
                 <option value="60">1小时/帧</option>
             </select>
         </div>
+        
     </div>
 
     <!-- 引入外部库 -->
@@ -427,6 +553,11 @@
             scene.add(groups.moonTraj);
             scene.add(groups.moonHour);
             scene.add(groups.gnomon);
+
+            // 初始化绘图Group
+            drawGroup = new THREE.Group();
+            drawGroup.name = 'drawGroup';
+            scene.add(drawGroup);
 
             // 6. 创建固定结构
             createGround();
@@ -705,9 +836,49 @@
             ];
             groups.equatorLine.add(createLine(axisPointsBelow, 0x8b0000, 0.6, lineWidth * 1.5));
             
+            // 添加北极星标记（文字）
             const polaris = createSpriteText('北极星', '#ff0000', 15);
             polaris.position.set(0, R * 1.25, 0);
             groups.equatorLine.add(polaris);
+            
+            // 添加北极星图形标记（黄色五角星）
+            const polarisStar = createPolarisStar(3, 0xffd700);
+            polarisStar.position.set(0, R * 1.2, 0);
+            groups.equatorLine.add(polarisStar);
+        }
+        
+        // 创建北极星（五角星）
+        function createPolarisStar(size, color) {
+            const starShape = new THREE.Shape();
+            const outerRadius = size;
+            const innerRadius = size * 0.4;
+            const points = 5;
+            
+            for (let i = 0; i < points * 2; i++) {
+                const angle = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
+                const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                if (i === 0) {
+                    starShape.moveTo(x, y);
+                } else {
+                    starShape.lineTo(x, y);
+                }
+            }
+            starShape.closePath();
+            
+            const geometry = new THREE.ShapeGeometry(starShape);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: color,
+                side: THREE.DoubleSide
+            });
+            
+            const star = new THREE.Mesh(geometry, material);
+            
+            // 让星星始终面向相机
+            star.userData.isBillboard = true;
+            
+            return star;
         }
 
         // 经纬度转换到笛卡尔坐标 (+Z北, -Z为南, -X为东, +X为西, +Y上)
@@ -1134,39 +1305,612 @@
                 groups.moonHour.add(mLbl);
             }
             
-            // 4. 标注真太阳时上中天位置（真太阳时12:00）
-            // 真太阳时12:00 = 地方平太阳时12:00 - 均时差
-            const eotMinutes = getEquationOfTime(currDate);
-            const eotHours = eotMinutes / 60;
+        }
+
+        // 绘图功能相关变量
+        let drawMode = 'none'; // 'none', 'pen', 'line', 'rect', 'ellipse', 'arrow', 'erase'
+        let isDrawing = false;
+        let currentLine = null;
+        let drawnObjects = []; // 存储所有绘制的对象
+        let drawHistory = []; // 用于撤销的历史记录
+        let raycaster = new THREE.Raycaster();
+        let mouse = new THREE.Vector2();
+        let drawStartPoint = null;
+        let drawPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // 默认在地平面上绘制
+        let drawGroup = null; // 将在init中初始化
+        
+        // 获取当前绘图颜色和线宽
+        function getDrawColor() {
+            return document.getElementById('toolbar-color').value;
+        }
+        
+        function getDrawWidth() {
+            return parseFloat(document.getElementById('toolbar-width').value) || 2;
+        }
+        
+        // 获取鼠标在3D空间中的位置
+        function getMousePosition(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
             
-            // 计算真太阳时12:00对应的UTC时间
-            // 真太阳时 = 地方平太阳时 - 均时差/60
-            // 真太阳时12:00时，地方平太阳时 = 12:00 + 均时差/60
-            const localMeanNoon = 12 + eotHours;
+            raycaster.setFromCamera(mouse, camera);
             
-            // 地方平太阳时 = UTC + 经度/15
-            // 所以 UTC = 地方平太阳时 - 经度/15
-            const utcNoon = localMeanNoon - lon / 15;
+            // 与绘制平面相交
+            const target = new THREE.Vector3();
+            raycaster.ray.intersectPlane(drawPlane, target);
             
-            // 构建真太阳时12:00的UTC时间
-            const solarNoonUTC = new Date(dayStartUTC + utcNoon * 3600000);
+            return target;
+        }
+        
+        // 设置绘制平面（根据当前视角）
+        function updateDrawPlane() {
+            // 获取相机朝向
+            const cameraDirection = new THREE.Vector3();
+            camera.getWorldDirection(cameraDirection);
             
-            // 计算该时刻太阳位置
-            const solarNoonPos = SunCalc.getPosition(solarNoonUTC, lat, lon);
-            const solarNoonVec = toVector(solarNoonPos.azimuth, solarNoonPos.altitude, R);
+            // 绘制平面垂直于相机方向
+            drawPlane.normal.copy(cameraDirection).negate();
+            drawPlane.constant = -drawPlane.normal.dot(controls.target);
+        }
+        
+        // 创建矩形线条
+        function createRectLine(p1, p2, color, width) {
+            const minX = Math.min(p1.x, p2.x);
+            const maxX = Math.max(p1.x, p2.x);
+            const minY = Math.min(p1.y, p2.y);
+            const maxY = Math.max(p1.y, p2.y);
+            const z = p1.z;
             
-            // 添加上中天标记（较大的红色标记）
-            const solarNoonMarker = new THREE.Mesh(
-                new THREE.SphereGeometry(1.5, 16, 16), 
-                new THREE.MeshBasicMaterial({ color: 0xff0000 })
-            );
-            solarNoonMarker.position.copy(solarNoonVec);
-            groups.sunHour.add(solarNoonMarker);
+            const points = [
+                new THREE.Vector3(minX, minY, z),
+                new THREE.Vector3(maxX, minY, z),
+                new THREE.Vector3(maxX, maxY, z),
+                new THREE.Vector3(minX, maxY, z),
+                new THREE.Vector3(minX, minY, z)
+            ];
             
-            // 添加上中天标签
-            const solarNoonLabel = createSpriteText('上中天', '#ff0000', 10);
-            solarNoonLabel.position.copy(solarNoonVec).multiplyScalar(1.12);
-            groups.sunHour.add(solarNoonLabel);
+            return createLine(points, color, 1.0, width);
+        }
+        
+        // 创建椭圆线条
+        function createEllipseLine(center, rx, ry, color, width) {
+            const points = [];
+            const segments = 64;
+            for (let i = 0; i <= segments; i++) {
+                const angle = (i / segments) * Math.PI * 2;
+                points.push(new THREE.Vector3(
+                    center.x + Math.cos(angle) * rx,
+                    center.y + Math.sin(angle) * ry,
+                    center.z
+                ));
+            }
+            return createLine(points, color, 1.0, width);
+        }
+        
+        // 创建箭头
+        function createArrowLine(start, end, color, width) {
+            const group = new THREE.Group();
+            
+            // 主线
+            const mainLine = createLine([start, end], color, 1.0, width);
+            group.add(mainLine);
+            
+            // 箭头头部
+            const direction = new THREE.Vector3().subVectors(end, start).normalize();
+            const arrowLength = 8;
+            const arrowAngle = Math.PI / 6; // 30度
+            
+            // 垂直于方向的向量
+            const up = new THREE.Vector3(0, 0, 1);
+            let perpendicular = new THREE.Vector3().crossVectors(direction, up).normalize();
+            if (perpendicular.length() < 0.001) {
+                perpendicular = new THREE.Vector3(1, 0, 0);
+            }
+            
+            // 箭头两翼
+            const wing1 = new THREE.Vector3().copy(direction).applyAxisAngle(perpendicular, arrowAngle).multiplyScalar(-arrowLength).add(end);
+            const wing2 = new THREE.Vector3().copy(direction).applyAxisAngle(perpendicular, -arrowAngle).multiplyScalar(-arrowLength).add(end);
+            
+            const arrowHead1 = createLine([end, wing1], color, 1.0, width);
+            const arrowHead2 = createLine([end, wing2], color, 1.0, width);
+            group.add(arrowHead1);
+            group.add(arrowHead2);
+            
+            return group;
+        }
+        
+        // 创建3D立方体线框
+        function createCubeWireframe(center, size, color, width) {
+            const half = size / 2;
+            const group = new THREE.Group();
+            
+            // 立方体的8个顶点
+            const vertices = [
+                new THREE.Vector3(center.x - half, center.y - half, center.z - half),
+                new THREE.Vector3(center.x + half, center.y - half, center.z - half),
+                new THREE.Vector3(center.x + half, center.y + half, center.z - half),
+                new THREE.Vector3(center.x - half, center.y + half, center.z - half),
+                new THREE.Vector3(center.x - half, center.y - half, center.z + half),
+                new THREE.Vector3(center.x + half, center.y - half, center.z + half),
+                new THREE.Vector3(center.x + half, center.y + half, center.z + half),
+                new THREE.Vector3(center.x - half, center.y + half, center.z + half)
+            ];
+            
+            // 12条边
+            const edges = [
+                [0, 1], [1, 2], [2, 3], [3, 0], // 底面
+                [4, 5], [5, 6], [6, 7], [7, 4], // 顶面
+                [0, 4], [1, 5], [2, 6], [3, 7]  // 侧面
+            ];
+            
+            for (let edge of edges) {
+                const line = createLine([vertices[edge[0]], vertices[edge[1]]], color, 1.0, width);
+                group.add(line);
+            }
+            
+            return group;
+        }
+        
+        // 创建3D球体线框
+        function createSphereWireframe(center, radius, color, width) {
+            const group = new THREE.Group();
+            const segments = 32;
+            
+            // 三个正交圆环
+            for (let i = 0; i < 3; i++) {
+                const points = [];
+                for (let j = 0; j <= segments; j++) {
+                    const angle = (j / segments) * Math.PI * 2;
+                    let x, y, z;
+                    if (i === 0) {
+                        x = center.x + Math.cos(angle) * radius;
+                        y = center.y + Math.sin(angle) * radius;
+                        z = center.z;
+                    } else if (i === 1) {
+                        x = center.x + Math.cos(angle) * radius;
+                        y = center.y;
+                        z = center.z + Math.sin(angle) * radius;
+                    } else {
+                        x = center.x;
+                        y = center.y + Math.cos(angle) * radius;
+                        z = center.z + Math.sin(angle) * radius;
+                    }
+                    points.push(new THREE.Vector3(x, y, z));
+                }
+                group.add(createLine(points, color, 1.0, width));
+            }
+            
+            return group;
+        }
+        
+        // 创建3D圆柱体线框
+        function createCylinderWireframe(center, radius, height, color, width) {
+            const group = new THREE.Group();
+            const segments = 32;
+            const halfHeight = height / 2;
+            
+            // 上下两个圆
+            for (let h of [-halfHeight, halfHeight]) {
+                const points = [];
+                for (let i = 0; i <= segments; i++) {
+                    const angle = (i / segments) * Math.PI * 2;
+                    points.push(new THREE.Vector3(
+                        center.x + Math.cos(angle) * radius,
+                        center.y + h,
+                        center.z + Math.sin(angle) * radius
+                    ));
+                }
+                group.add(createLine(points, color, 1.0, width));
+            }
+            
+            // 侧面线
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const x = center.x + Math.cos(angle) * radius;
+                const z = center.z + Math.sin(angle) * radius;
+                group.add(createLine([
+                    new THREE.Vector3(x, center.y - halfHeight, z),
+                    new THREE.Vector3(x, center.y + halfHeight, z)
+                ], color, 1.0, width));
+            }
+            
+            return group;
+        }
+        
+        // 创建3D圆锥体线框
+        function createConeWireframe(center, radius, height, color, width) {
+            const group = new THREE.Group();
+            const segments = 32;
+            const apex = new THREE.Vector3(center.x, center.y + height / 2, center.z);
+            const baseY = center.y - height / 2;
+            
+            // 底面圆
+            const basePoints = [];
+            for (let i = 0; i <= segments; i++) {
+                const angle = (i / segments) * Math.PI * 2;
+                basePoints.push(new THREE.Vector3(
+                    center.x + Math.cos(angle) * radius,
+                    baseY,
+                    center.z + Math.sin(angle) * radius
+                ));
+            }
+            group.add(createLine(basePoints, color, 1.0, width));
+            
+            // 从顶点到底面的线
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const basePoint = new THREE.Vector3(
+                    center.x + Math.cos(angle) * radius,
+                    baseY,
+                    center.z + Math.sin(angle) * radius
+                );
+                group.add(createLine([apex, basePoint], color, 1.0, width));
+            }
+            
+            return group;
+        }
+        
+        // 开始绘制
+        function startDraw(event) {
+            if (drawMode === 'none') return;
+            
+            isDrawing = true;
+            updateDrawPlane();
+            const point = getMousePosition(event);
+            
+            if (!point) return;
+            
+            const color = getDrawColor();
+            const width = getDrawWidth();
+            
+            if (drawMode === 'pen') {
+                // 画笔模式 - 创建新的线条
+                currentLine = {
+                    type: 'pen',
+                    points: [point.clone()],
+                    color: color,
+                    width: width,
+                    mesh: null
+                };
+            } else if (drawMode === 'line') {
+                // 直线模式 - 记录起点
+                drawStartPoint = point.clone();
+                
+                // 创建临时直线（使用createLine支持可变线宽）
+                currentLine = createLine([drawStartPoint, drawStartPoint], color, 1.0, width);
+                currentLine.userData = { type: 'line', start: drawStartPoint, end: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'rect') {
+                // 矩形模式
+                drawStartPoint = point.clone();
+                currentLine = createRectLine(drawStartPoint, drawStartPoint, color, width);
+                currentLine.userData = { type: 'rect', start: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'ellipse') {
+                // 椭圆模式
+                drawStartPoint = point.clone();
+                currentLine = createEllipseLine(drawStartPoint, 0, 0, color, width);
+                currentLine.userData = { type: 'ellipse', start: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'arrow') {
+                // 箭头模式
+                drawStartPoint = point.clone();
+                currentLine = createArrowLine(drawStartPoint, drawStartPoint, color, width);
+                currentLine.userData = { type: 'arrow', start: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'text') {
+                // 文本模式 - 点击直接输入文本
+                isDrawing = false;
+                const text = prompt('请输入文本:', '');
+                if (text && text.trim()) {
+                    const textSprite = createSpriteText(text, color, 20);
+                    textSprite.position.copy(point);
+                    textSprite.userData.isBillboard = true;
+                    drawGroup.add(textSprite);
+                    
+                    drawnObjects.push({
+                        type: 'text',
+                        mesh: textSprite,
+                        text: text
+                    });
+                    addToHistory({ type: 'add', object: drawnObjects[drawnObjects.length - 1] });
+                }
+            } else if (drawMode === 'cube') {
+                // 立方体模式
+                drawStartPoint = point.clone();
+                currentLine = createCubeWireframe(drawStartPoint, 0, color, width);
+                currentLine.userData = { type: 'cube', start: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'sphere') {
+                // 球体模式
+                drawStartPoint = point.clone();
+                currentLine = createSphereWireframe(drawStartPoint, 0, color, width);
+                currentLine.userData = { type: 'sphere', start: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'cylinder') {
+                // 圆柱体模式
+                drawStartPoint = point.clone();
+                currentLine = createCylinderWireframe(drawStartPoint, 0, 0, color, width);
+                currentLine.userData = { type: 'cylinder', start: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'cone') {
+                // 圆锥体模式
+                drawStartPoint = point.clone();
+                currentLine = createConeWireframe(drawStartPoint, 0, 0, color, width);
+                currentLine.userData = { type: 'cone', start: drawStartPoint, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'erase') {
+                // 擦除模式
+                eraseAtPoint(point);
+            }
+        }
+        
+        // 绘制中
+        function drawMove(event) {
+            if (!isDrawing || drawMode === 'none') return;
+            
+            const point = getMousePosition(event);
+            if (!point) return;
+            
+            if (drawMode === 'pen' && currentLine) {
+                // 添加点到当前线条
+                currentLine.points.push(point.clone());
+                
+                // 更新或创建线条mesh（使用createLine支持可变线宽）
+                if (currentLine.mesh) {
+                    drawGroup.remove(currentLine.mesh);
+                    currentLine.mesh.geometry.dispose();
+                    if (currentLine.mesh.material) currentLine.mesh.material.dispose();
+                }
+                
+                currentLine.mesh = createLine(currentLine.points, currentLine.color, 1.0, currentLine.width);
+                drawGroup.add(currentLine.mesh);
+            } else if (drawMode === 'line' && currentLine && drawStartPoint) {
+                // 更新直线终点（重新创建以支持可变线宽）
+                const color = currentLine.userData.color;
+                const width = currentLine.userData.width;
+                
+                drawGroup.remove(currentLine);
+                currentLine.geometry.dispose();
+                if (currentLine.material) currentLine.material.dispose();
+                
+                currentLine = createLine([drawStartPoint, point], color, 1.0, width);
+                currentLine.userData = { type: 'line', start: drawStartPoint, end: point, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'rect' && currentLine && drawStartPoint) {
+                // 更新矩形
+                const color = currentLine.userData.color;
+                const width = currentLine.userData.width;
+                
+                drawGroup.remove(currentLine);
+                currentLine.geometry.dispose();
+                if (currentLine.material) currentLine.material.dispose();
+                
+                currentLine = createRectLine(drawStartPoint, point, color, width);
+                currentLine.userData = { type: 'rect', start: drawStartPoint, end: point, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'ellipse' && currentLine && drawStartPoint) {
+                // 更新椭圆
+                const color = currentLine.userData.color;
+                const width = currentLine.userData.width;
+                const center = new THREE.Vector3().addVectors(drawStartPoint, point).multiplyScalar(0.5);
+                const rx = Math.abs(point.x - drawStartPoint.x) / 2;
+                const ry = Math.abs(point.y - drawStartPoint.y) / 2;
+                
+                drawGroup.remove(currentLine);
+                currentLine.geometry.dispose();
+                if (currentLine.material) currentLine.material.dispose();
+                
+                currentLine = createEllipseLine(center, rx, ry, color, width);
+                currentLine.userData = { type: 'ellipse', start: drawStartPoint, end: point, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if (drawMode === 'arrow' && currentLine && drawStartPoint) {
+                // 更新箭头
+                const color = currentLine.userData.color;
+                const width = currentLine.userData.width;
+                
+                drawGroup.remove(currentLine);
+                // 清理group中的子对象
+                currentLine.children.forEach(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) child.material.dispose();
+                });
+                
+                currentLine = createArrowLine(drawStartPoint, point, color, width);
+                currentLine.userData = { type: 'arrow', start: drawStartPoint, end: point, color: color, width: width };
+                drawGroup.add(currentLine);
+            } else if ((drawMode === 'cube' || drawMode === 'sphere' || drawMode === 'cylinder' || drawMode === 'cone') && currentLine && drawStartPoint) {
+                // 更新3D图形
+                const color = currentLine.userData.color;
+                const width = currentLine.userData.width;
+                const dx = Math.abs(point.x - drawStartPoint.x);
+                const dy = Math.abs(point.y - drawStartPoint.y);
+                const size = Math.max(dx, dy);
+                
+                drawGroup.remove(currentLine);
+                currentLine.children.forEach(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) child.material.dispose();
+                });
+                
+                const center = new THREE.Vector3().addVectors(drawStartPoint, point).multiplyScalar(0.5);
+                
+                if (drawMode === 'cube') {
+                    currentLine = createCubeWireframe(center, size, color, width);
+                } else if (drawMode === 'sphere') {
+                    currentLine = createSphereWireframe(center, size / 2, color, width);
+                } else if (drawMode === 'cylinder') {
+                    currentLine = createCylinderWireframe(center, size / 2, size, color, width);
+                } else if (drawMode === 'cone') {
+                    currentLine = createConeWireframe(center, size / 2, size, color, width);
+                }
+                
+                currentLine.userData = { type: drawMode, start: drawStartPoint, end: point, color: color, width: width };
+                drawGroup.add(currentLine);
+            }
+        }
+        
+        // 结束绘制
+        function endDraw() {
+            if (!isDrawing) return;
+            
+            isDrawing = false;
+            
+            if (drawMode === 'pen' && currentLine && currentLine.mesh) {
+                // 保存画笔线条到历史
+                drawnObjects.push({
+                    type: 'pen',
+                    mesh: currentLine.mesh,
+                    points: currentLine.points
+                });
+                addToHistory({ type: 'add', object: drawnObjects[drawnObjects.length - 1] });
+                currentLine = null;
+            } else if ((drawMode === 'line' || drawMode === 'rect' || drawMode === 'ellipse' || drawMode === 'arrow' || drawMode === 'cube' || drawMode === 'sphere' || drawMode === 'cylinder' || drawMode === 'cone') && currentLine) {
+                // 保存图形到历史
+                drawnObjects.push({
+                    type: drawMode,
+                    mesh: currentLine,
+                    start: drawStartPoint,
+                    end: currentLine.userData.end || currentLine.userData.start
+                });
+                addToHistory({ type: 'add', object: drawnObjects[drawnObjects.length - 1] });
+                currentLine = null;
+                drawStartPoint = null;
+            }
+        }
+        
+        // 擦除功能
+        function eraseAtPoint(point) {
+            const eraseRadius = 10; // 擦除半径
+            
+            for (let i = drawnObjects.length - 1; i >= 0; i--) {
+                const obj = drawnObjects[i];
+                let shouldErase = false;
+                
+                if (obj.type === 'pen') {
+                    // 检查线条上的点是否在擦除范围内
+                    for (let p of obj.points) {
+                        if (p.distanceTo(point) < eraseRadius) {
+                            shouldErase = true;
+                            break;
+                        }
+                    }
+                } else if (obj.type === 'line') {
+                    // 检查直线是否在擦除范围内
+                    if (obj.start.distanceTo(point) < eraseRadius || 
+                        obj.end.distanceTo(point) < eraseRadius) {
+                        shouldErase = true;
+                    }
+                }
+                
+                if (shouldErase) {
+                    // 从场景中移除
+                    drawGroup.remove(obj.mesh);
+                    if (obj.mesh.geometry) obj.mesh.geometry.dispose();
+                    if (obj.mesh.material) obj.mesh.material.dispose();
+                    
+                    // 添加到历史记录（用于撤销）
+                    addToHistory({ type: 'erase', object: obj, index: i });
+                    
+                    // 从数组中移除
+                    drawnObjects.splice(i, 1);
+                }
+            }
+        }
+        
+        // 添加到历史记录
+        function addToHistory(action) {
+            drawHistory.push(action);
+            // 限制历史记录数量
+            if (drawHistory.length > 50) {
+                drawHistory.shift();
+            }
+        }
+        
+        // 撤销功能
+        function undo() {
+            if (drawHistory.length === 0) return;
+            
+            const action = drawHistory.pop();
+            
+            if (action.type === 'add') {
+                // 撤销添加 - 移除对象
+                const obj = action.object;
+                drawGroup.remove(obj.mesh);
+                if (obj.mesh.geometry) obj.mesh.geometry.dispose();
+                if (obj.mesh.material) obj.mesh.material.dispose();
+                
+                const index = drawnObjects.indexOf(obj);
+                if (index > -1) drawnObjects.splice(index, 1);
+            } else if (action.type === 'erase') {
+                // 撤销擦除 - 恢复对象
+                const obj = action.object;
+                drawGroup.add(obj.mesh);
+                drawnObjects.splice(action.index, 0, obj);
+            }
+        }
+        
+        // 清空所有绘制
+        function clearDrawings() {
+            // 保存当前状态到历史（用于撤销清空）
+            if (drawnObjects.length > 0) {
+                addToHistory({ type: 'clear', objects: [...drawnObjects] });
+            }
+            
+            // 移除所有绘制对象
+            for (let obj of drawnObjects) {
+                drawGroup.remove(obj.mesh);
+                if (obj.mesh.geometry) obj.mesh.geometry.dispose();
+                if (obj.mesh.material) obj.mesh.material.dispose();
+            }
+            drawnObjects = [];
+        }
+        
+        // 设置绘制模式
+        function setDrawMode(mode) {
+            drawMode = mode;
+            
+            switch(mode) {
+                case 'none':
+                    renderer.domElement.style.cursor = 'default';
+                    controls.enabled = true;
+                    break;
+                case 'pen':
+                    renderer.domElement.style.cursor = 'crosshair';
+                    controls.enabled = false;
+                    break;
+                case 'line':
+                    renderer.domElement.style.cursor = 'crosshair';
+                    controls.enabled = false;
+                    break;
+                case 'text':
+                    renderer.domElement.style.cursor = 'text';
+                    controls.enabled = false;
+                    break;
+                case 'rect':
+                    renderer.domElement.style.cursor = 'crosshair';
+                    controls.enabled = false;
+                    break;
+                case 'ellipse':
+                    renderer.domElement.style.cursor = 'crosshair';
+                    controls.enabled = false;
+                    break;
+                case 'arrow':
+                    renderer.domElement.style.cursor = 'crosshair';
+                    controls.enabled = false;
+                    break;
+                case 'cube':
+                case 'sphere':
+                case 'cylinder':
+                case 'cone':
+                    renderer.domElement.style.cursor = 'crosshair';
+                    controls.enabled = false;
+                    break;
+                case 'erase':
+                    renderer.domElement.style.cursor = 'not-allowed';
+                    controls.enabled = false;
+                    break;
+            }
         }
 
         function bindEvents() {
@@ -1226,6 +1970,69 @@
             document.getElementById('anim-pause').addEventListener('click', pauseAnimation);
             document.getElementById('anim-reset').addEventListener('click', resetAnimation);
 
+            // 绑定左侧工具栏按钮
+            const toolButtons = {
+                'tool-select': 'none',
+                'tool-pen': 'pen',
+                'tool-line': 'line',
+                'tool-text': 'text',
+                'tool-rect': 'rect',
+                'tool-ellipse': 'ellipse',
+                'tool-arrow': 'arrow',
+                'tool-cube': 'cube',
+                'tool-sphere': 'sphere',
+                'tool-cylinder': 'cylinder',
+                'tool-cone': 'cone',
+                'tool-erase': 'erase'
+            };
+            
+            for (let [id, mode] of Object.entries(toolButtons)) {
+                document.getElementById(id).addEventListener('click', function() {
+                    // 更新按钮状态
+                    document.querySelectorAll('.draw-tool-btn').forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    setDrawMode(mode);
+                });
+            }
+            
+            document.getElementById('tool-undo').addEventListener('click', undo);
+            document.getElementById('tool-clear').addEventListener('click', clearDrawings);
+
+            // 绑定绘图鼠标事件
+            const canvas = renderer.domElement;
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', drawMove);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('mouseleave', endDraw);
+            
+            // 键盘快捷键
+            window.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT') return;
+                switch(e.key.toLowerCase()) {
+                    case 'v': document.getElementById('tool-select').click(); break;
+                    case 'p': document.getElementById('tool-pen').click(); break;
+                    case 'l': document.getElementById('tool-line').click(); break;
+                    case 't': document.getElementById('tool-text').click(); break;
+                    case 'r': document.getElementById('tool-rect').click(); break;
+                    case 'c': document.getElementById('tool-cube').click(); break;
+                    case 's': document.getElementById('tool-sphere').click(); break;
+                    case 'y': document.getElementById('tool-cylinder').click(); break;
+                    case 'n': document.getElementById('tool-cone').click(); break;
+                    case 'e': 
+                        if (e.ctrlKey) {
+                            document.getElementById('tool-erase').click();
+                        }
+                        break;
+                    case 'z':
+                        if (e.ctrlKey) undo();
+                        break;
+                    case 'delete':
+                    case 'backspace':
+                        clearDrawings();
+                        break;
+                }
+            });
+
             // 窗口缩放自适应
             window.addEventListener('resize', onWindowResize, false);
         }
@@ -1239,6 +2046,14 @@
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
+            
+            // 让billboard对象始终面向相机
+            scene.traverse(function(object) {
+                if (object.userData.isBillboard) {
+                    object.lookAt(camera.position);
+                }
+            });
+            
             renderer.render(scene, camera);
         }
 
