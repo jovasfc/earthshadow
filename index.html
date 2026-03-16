@@ -275,6 +275,14 @@
       background: #fd7e14;
     }
 
+    .btn-import:hover {
+      background: #339af0;
+    }
+
+    .btn-clear-geojson:hover {
+      background: #fa5252;
+    }
+
     .color-picker-row {
       display: flex;
       align-items: center;
@@ -476,6 +484,12 @@
             <div class="checkbox-group"><input type="checkbox" id="show-location" checked> 当前地点</div>
             <div class="checkbox-group"><input type="checkbox" id="show-sun-point" checked> 直射点 <span class="info-icon" onclick="showInfoModal('sun-point')">ℹ️</span></div>
             <div class="checkbox-group"><input type="checkbox" id="show-twilight"> 晨昏蒙影 <span class="info-icon" onclick="showInfoModal('twilight')">ℹ️</span></div>
+            <div class="checkbox-group"><input type="checkbox" id="show-geojson"> 导入数据</div>
+          </div>
+          <div class="geojson-controls" style="margin-top: 8px; display: flex; gap: 8px;">
+            <input type="file" id="geojson-input" accept=".json" style="display: none;">
+            <button class="btn-import" onclick="document.getElementById('geojson-input').click()" style="flex: 1; padding: 6px; background: #4dabf7; border: none; border-radius: 4px; color: white; font-size: 12px; cursor: pointer;">导入JSON</button>
+            <button class="btn-clear-geojson" onclick="clearGeoJSON()" style="flex: 1; padding: 6px; background: #ff6b6b; border: none; border-radius: 4px; color: white; font-size: 12px; cursor: pointer;">清除</button>
           </div>
         </div>
         
@@ -1169,6 +1183,60 @@
       e.target.value = '';
     });
 
+    document.getElementById("geojson-input").addEventListener("change", function(e) {
+      var file = e.target.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function(event) {
+          try {
+            var data = JSON.parse(event.target.result);
+            
+            if (data.type === "Topology") {
+              if (typeof topojson !== 'undefined') {
+                var geojson;
+                if (data.objects.land) {
+                  geojson = topojson.feature(data, data.objects.land);
+                } else {
+                  var objectNames = Object.keys(data.objects);
+                  if (objectNames.length > 0) {
+                    geojson = topojson.feature(data, data.objects[objectNames[0]]);
+                  } else {
+                    throw new Error('TopoJSON文件中没有找到有效的对象');
+                  }
+                }
+                window.importedGeoJSON = geojson;
+                alert('TopoJSON文件导入成功！');
+              } else {
+                alert('TopoJSON支持库未加载，无法处理TopoJSON文件');
+                return;
+              }
+            } else {
+              window.importedGeoJSON = data;
+              alert('GeoJSON文件导入成功！');
+            }
+            
+            document.getElementById("show-geojson").checked = true;
+            if (typeof window.render === 'function') {
+              window.render();
+            }
+          } catch (err) {
+            alert('无法解析JSON文件: ' + err.message);
+            console.error('解析错误:', err);
+          }
+        };
+        reader.readAsText(file);
+      }
+      e.target.value = '';
+    });
+
+    function clearGeoJSON() {
+      window.importedGeoJSON = null;
+      document.getElementById("show-geojson").checked = false;
+      if (typeof window.render === 'function') {
+        window.render();
+      }
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
         p_lon = position.coords.longitude;
@@ -1396,7 +1464,16 @@
 
   var can=document.getElementById("can");
   d3.json("./110m.json",function(error,w){
-    window.land=topojson.feature(w,w.objects.land);
+    if (error) {
+      console.error("无法加载110m.json:", error);
+      alert("无法加载地图数据文件，请检查文件是否存在。");
+      return;
+    }
+    if (w.type === "Topology") {
+      window.land=topojson.feature(w,w.objects.land);
+    } else {
+      window.land = w;
+    }
     drawmap();
   })
 
@@ -1787,7 +1864,7 @@ function zoomedd(){
             phase = phase - Math.floor(phase);
             return Math.round(phase * 29.53) + 1;
         };
-        var img_path="./"+phaseToLunarDay(moon_phase.phase)+".png";
+        var img_path="./moon/"+phaseToLunarDay(moon_phase.phase)+".png";
         moon_ph_img.src=img_path;
 
         // 更新农历显示
@@ -1889,9 +1966,22 @@ function zoomedd(){
     
     TimeZones = world;
 
-    d3.json("./contries.geojson", function(error, countriesData) {
+    d3.json("./countries.json", function(error, countriesData) {
       if (error) throw error;
-      countries = countriesData;
+      if (countriesData.type === "Topology") {
+        if (countriesData.objects.countries) {
+          countries = topojson.feature(countriesData, countriesData.objects.countries);
+        } else {
+          var objectNames = Object.keys(countriesData.objects);
+          if (objectNames.length > 0) {
+            countries = topojson.feature(countriesData, countriesData.objects[objectNames[0]]);
+          } else {
+            countries = countriesData;
+          }
+        }
+      } else {
+        countries = countriesData;
+      }
 
     var grad=document.getElementsByName("grad");
     var grad_value = "none";
@@ -2056,6 +2146,11 @@ function zoomedd(){
       if(document.getElementById("tz").checked==true){
         context.beginPath(), path(TimeZones), context.strokeStyle=hexToRgba(getColor("color-timezone"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke(), context.fillStyle="rgba(255,255,255,0)",context.fill();
       }
+      
+      if(document.getElementById("show-geojson").checked && window.importedGeoJSON) {
+        context.beginPath(), path(window.importedGeoJSON), context.fillStyle = "rgba(255, 100, 100, 0.5)", context.fill(),context.lineWidth=strokeWidth,context.setLineDash([]),context.strokeStyle="rgba(255, 0, 0, 1)",context.stroke();
+      }
+      
       if(typeof sun_h != "undefined"){
         for(var kk=0;kk<sun_h.length;kk=kk+1){
           context.beginPath(), path(sun_h[kk]),context.strokeStyle=hexToRgba(getColor("color-sun-height"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke();
