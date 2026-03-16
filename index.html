@@ -325,6 +325,100 @@
       text-align: center;
     }
 
+    .info-icon {
+      display: inline-block;
+      margin-left: 5px;
+      cursor: pointer;
+      color: #4dabf7;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .info-icon:hover {
+      color: #7ec8e3;
+      transform: scale(1.1);
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100000000;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: rgba(30, 30, 40, 0.98);
+      border: 1px solid rgba(77, 171, 247, 0.3);
+      border-radius: 12px;
+      padding: 25px;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      color: white;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #4dabf7;
+      margin: 0 0 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(77, 171, 247, 0.3);
+    }
+
+    .modal-content {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #ced4da;
+    }
+
+    .modal-content h4 {
+      color: #7ec8e3;
+      margin: 15px 0 8px 0;
+      font-size: 15px;
+    }
+
+    .modal-content p {
+      margin: 8px 0;
+    }
+
+    .modal-content ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .modal-content li {
+      margin: 5px 0;
+    }
+
+    .modal-close {
+      margin-top: 20px;
+      padding: 10px 30px;
+      background: rgba(77, 171, 247, 0.3);
+      border: 1px solid rgba(77, 171, 247, 0.5);
+      border-radius: 6px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: rgba(77, 171, 247, 0.5);
+    }
+
     .data-item hr {
       width: 80%;
       margin: 6px auto;
@@ -377,9 +471,11 @@
           <div class="checkbox-row">
             <div class="checkbox-group"><input type="checkbox" id="sealand" checked> 海陆分布</div>
             <div class="checkbox-group"><input type="checkbox" id="country"> 行政界线</div>
-            <div class="checkbox-group"><input type="checkbox" id="chq" checked> 晨昏圈</div>
-            <div class="checkbox-group"><input type="checkbox" id="tz"> 实际时区</div>
+            <div class="checkbox-group"><input type="checkbox" id="chq" checked> 晨昏圈 <span class="info-icon" onclick="showInfoModal('terminator')">ℹ️</span></div>
+            <div class="checkbox-group"><input type="checkbox" id="tz"> 实际时区 <span class="info-icon" onclick="showInfoModal('timezone')">ℹ️</span></div>
             <div class="checkbox-group"><input type="checkbox" id="show-location" checked> 当前地点</div>
+            <div class="checkbox-group"><input type="checkbox" id="show-sun-point" checked> 直射点 <span class="info-icon" onclick="showInfoModal('sun-point')">ℹ️</span></div>
+            <div class="checkbox-group"><input type="checkbox" id="show-twilight"> 晨昏蒙影 <span class="info-icon" onclick="showInfoModal('twilight')">ℹ️</span></div>
           </div>
         </div>
         
@@ -502,13 +598,13 @@
         <div class="data-item" id="sun_dir">太阳方位</div>
         <hr>
         <div class="data-item" id="lunar_date" style="font-weight: bold; color: #c05e19;">农历 --</div>
-        <div class="data-item" id="moon_ph">月相 <img id="moon_ph_img" src="" style="width: 60px; height: 56px; vertical-align: middle; border: 0.5px solid rgb(201, 215, 234); border-radius: 4px;"></div>
+        <div class="data-item" id="moon_ph">月相 <img id="moon_ph_img" src="" style="width: 60px; height: 56px; vertical-align: middle; border: 0.5px solid rgb(201, 215, 234); border-radius: 4px;"> <span class="info-icon" onclick="showInfoModal('moon-phase')">ℹ️</span></div>
         <div class="data-item" id="moonup">月出时间</div>
         <div class="data-item" id="moondown">月落时间</div>
         <div class="data-item" id="moon_height">月亮高度</div>
         <div class="data-item" id="moon_dir">月亮方位</div>
         <hr>
-        <div class="data-item" id="projection_params">投影参数</div>
+        <div class="data-item" id="projection_params">投影参数 <span class="info-icon" onclick="showInfoModal('projection')">ℹ️</span></div>
         <div class="data-item" id="rotation_params">旋转: λ=0°, φ=0°, γ=0°</div>
         <hr>
         <div class="warning-text">注意：默认设置为当前地点和当前时间，</div>
@@ -568,7 +664,7 @@
             <input type="color" id="color-night" class="color-picker-input" value="#a0a0a0">
           </div>
           <div class="color-picker-row">
-            <span class="color-picker-label">高度线</span>
+            <span class="color-picker-label">太阳高度线</span>
             <input type="color" id="color-sun-height" class="color-picker-input" value="#ff6666">
           </div>
           <div class="color-picker-row">
@@ -588,6 +684,154 @@
       </div>
     </div>
   </div>
+
+  <!-- 说明弹窗 -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeInfoModal(event)">
+    <div class="modal" id="modal-content" onclick="event.stopPropagation()">
+      <h2 class="modal-title" id="modal-title">标题</h2>
+      <div class="modal-content" id="modal-body">内容</div>
+      <button class="modal-close" onclick="closeInfoModal()">关闭</button>
+    </div>
+  </div>
+
+  <script>
+    // 说明弹窗内容
+    const infoContent = {
+      'sun-point': {
+        title: '太阳直射点',
+        content: `
+          <h4>什么是太阳直射点？</h4>
+          <p>太阳直射点是指太阳光线垂直照射在地球表面的点，即太阳高度角为90°的地点。</p>
+          
+          <h4>直射点的移动规律</h4>
+          <ul>
+            <li><strong>纬度变化：</strong>在南北回归线之间移动（23.5°N ~ 23.5°S）</li>
+            <li><strong>季节变化：</strong>春分、秋分时在赤道；夏至时在北回归线；冬至时在南回归线</li>
+            <li><strong>日变化：</strong>每天向西移动约15°经度</li>
+          </ul>
+          
+          <h4>直射点的意义</h4>
+          <p>直射点所在纬度决定该季节的太阳高度，影响昼夜长短和气候特征。</p>
+        `
+      },
+      'terminator': {
+        title: '晨昏线',
+        content: `
+          <h4>什么是晨昏线？</h4>
+          <p>晨昏线是地球表面昼半球和夜半球的分界线，即太阳高度角为0°的圆圈。</p>
+          
+          <h4>晨昏线的特点</h4>
+          <ul>
+            <li><strong>大圆：</strong>晨昏线是地球上的一个大圆，将地球平分为昼半球和夜半球</li>
+            <li><strong>动态变化：</strong>随地球自转，晨昏线每天向西移动约15°经度</li>
+            <li><strong>季节变化：</strong>由于地轴倾斜，晨昏线与经线的夹角随季节变化</li>
+            <li><strong>极昼极夜：</strong>在极地地区，晨昏线可能不与极圈相交，形成极昼或极夜</li>
+          </ul>
+          
+          <h4>晨昏线的意义</h4>
+          <p>晨昏线决定了日出日落时间、昼夜长短分布，是计算日照时数的基础。</p>
+        `
+      },
+      'twilight': {
+        title: '晨昏蒙影',
+        content: `
+          <h4>什么是晨昏蒙影？</h4>
+          <p>晨昏蒙影是指太阳在地平线以下，但天空仍有微弱光线的时段。</p>
+          
+          <h4>三种晨昏蒙影</h4>
+          <ul>
+            <li><strong>民用蒙影（太阳高度 -6°）：</strong>天空明亮，户外活动仍可进行，无需人工照明</li>
+            <li><strong>航海蒙影（太阳高度 -12°）：</strong>地平线清晰可见，明亮的星星开始出现，适合航海定位</li>
+            <li><strong>天文蒙影（太阳高度 -18°）：</strong>天空完全黑暗，适合天文观测</li>
+          </ul>
+          
+          <h4>晨昏蒙影的持续时间</h4>
+          <p>纬度越高，晨昏蒙影持续时间越长；赤道附近最短，极地地区最长。</p>
+        `
+      },
+      'timezone': {
+        title: '时区',
+        content: `
+          <h4>什么是时区？</h4>
+          <p>时区是为了统一时间而将地球表面按经度划分的区域，每个时区使用相同的标准时间。</p>
+          
+          <h4>时区的划分</h4>
+          <ul>
+            <li><strong>标准时区：</strong>以本初子午线为中心，每15°经度为一个时区，全球共24个时区</li>
+            <li><strong>时区编号：</strong>以本初子午线为基准，向东为正（+），向西为负（-），如东八区为+8</li>
+            <li><strong>实际时区：</strong>各国根据政治、地理等因素调整的实际使用时区，可能偏离标准时区</li>
+          </ul>
+          
+          <h4>时区与地方时</h4>
+          <p>地方时 = UTC + 时区偏移量。例如，东八区时间 = UTC + 8小时。</p>
+        `
+      },
+      'moon-phase': {
+        title: '月相',
+        content: `
+          <h4>什么是月相？</h4>
+          <p>月相是指月球被太阳照亮部分在地球上观察到的形状变化。</p>
+          
+          <h4>主要月相</h4>
+          <ul>
+            <li><strong>新月（朔）：</strong>月球位于地球和太阳之间，看不见月亮</li>
+            <li><strong>上弦月：</strong>月球右半边被照亮，呈半圆形</li>
+            <li><strong>满月（望）：</strong>地球位于月球和太阳之间，看到完整的圆月</li>
+            <li><strong>下弦月：</strong>月球左半边被照亮，呈半圆形</li>
+          </ul>
+          
+          <h4>月相周期</h4>
+          <p>月相变化周期约为29.53天，称为朔望月。农历就是根据月相制定的历法。</p>
+        `
+      },
+      'projection': {
+        title: '地图投影',
+        content: `
+          <h4>什么是地图投影？</h4>
+          <p>地图投影是将三维地球表面转换到二维平面的数学方法，不可避免地产生变形。</p>
+          
+          <h4>常用投影类型</h4>
+          <ul>
+            <li><strong>自然投影（Natural Earth）：</strong>均衡的伪圆柱投影，变形较小</li>
+            <li><strong>墨卡托投影（Mercator）：</strong>等角圆柱投影，保持角度和形状，适合航海</li>
+            <li><strong>正射投影（Orthographic）：</strong>透视投影，如同从太空看地球</li>
+            <li><strong>罗宾逊投影（Robinson）：</strong>伪圆柱投影，均衡面积和形状变形</li>
+            <li><strong>莫尔魏德投影（Mollweide）：</strong>等面积伪圆柱投影，保持面积比例</li>
+          </ul>
+          
+          <h4>投影参数</h4>
+          <p>λ（lambda）：经度旋转，φ（phi）：纬度旋转，γ（gamma）：倾斜角</p>
+        `
+      }
+    };
+
+    // 显示说明弹窗
+    function showInfoModal(type) {
+      const modal = document.getElementById('modal-overlay');
+      const title = document.getElementById('modal-title');
+      const body = document.getElementById('modal-body');
+      
+      if (infoContent[type]) {
+        title.textContent = infoContent[type].title;
+        body.innerHTML = infoContent[type].content;
+        modal.classList.add('active');
+      }
+    }
+
+    // 关闭说明弹窗
+    function closeInfoModal(event) {
+      if (event && event.target.id !== 'modal-overlay') return;
+      const modal = document.getElementById('modal-overlay');
+      modal.classList.remove('active');
+    }
+
+    // ESC键关闭弹窗
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeInfoModal();
+      }
+    });
+  </script>
 </body>
 </html>
 <script>
@@ -803,7 +1047,7 @@
       });
     });
 
-    var featureCheckboxes = document.querySelectorAll('#sealand, #country, #chq, #tz, #show-location');
+    var featureCheckboxes = document.querySelectorAll('#sealand, #country, #chq, #tz, #show-location, #show-sun-point, #show-twilight');
     featureCheckboxes.forEach(function(checkbox) {
       checkbox.addEventListener('change', function() {
         if (typeof window.render === 'function') {
@@ -1536,7 +1780,7 @@ function zoomedd(){
             phase = phase - Math.floor(phase);
             return Math.round(phase * 29.53) + 1;
         };
-        var img_path="./"+phaseToLunarDay(moon_phase.phase)+".png";
+        var img_path="./moon/"+phaseToLunarDay(moon_phase.phase)+".png";
         moon_ph_img.src=img_path;
 
         // 更新农历显示
@@ -1830,6 +2074,99 @@ function zoomedd(){
           context.lineWidth = 2;
           context.stroke();
         }
+      }
+      
+      // 绘制太阳直射点
+      if (document.getElementById("show-sun-point").checked) {
+        var sunPos = sun();
+        // sun()返回夜半球中心，直射点是夜半球中心的对跖点
+        // 直射点经度 = 夜半球中心经度 - 180°
+        // 直射点纬度 = 夜半球中心纬度的相反数
+        var sunLon = ((sunPos[0] - 180 + 360) % 360);
+        if (sunLon > 180) sunLon -= 360;
+        var sunLat = -sunPos[1];
+        var sunPoint = projection([sunLon, sunLat]);
+        if (sunPoint) {
+          var sx = sunPoint[0];
+          var sy = sunPoint[1];
+          
+          // 使用高度线的颜色
+          var sunPointColor = getColor("color-sun-height");
+          
+          // 绘制太阳符号（带光芒的圆）
+          context.fillStyle = sunPointColor;
+          context.beginPath();
+          context.arc(sx, sy, 8, 0, 2 * Math.PI);
+          context.fill();
+          
+          // 绘制光芒
+          context.strokeStyle = sunPointColor;
+          context.lineWidth = 2;
+          for (var i = 0; i < 8; i++) {
+            var angle = (i / 8) * Math.PI * 2;
+            context.beginPath();
+            context.moveTo(sx + Math.cos(angle) * 10, sy + Math.sin(angle) * 10);
+            context.lineTo(sx + Math.cos(angle) * 15, sy + Math.sin(angle) * 15);
+            context.stroke();
+          }
+          
+          // 绘制"直射点"标签
+          context.fillStyle = sunPointColor;
+          context.font = "bold 12px sans-serif";
+          context.textAlign = "center";
+          context.fillText("直射点", sx, sy - 20);
+        }
+      }
+      
+      // 绘制晨昏蒙影
+      if (document.getElementById("show-twilight").checked) {
+        var sunPos = sun();
+        // sun()返回夜半球中心
+        // 从夜半球中心到晨昏圈绘制，形成渐变效果
+        // 太阳高度 = -90° + radius（角距离）
+        // 所以：晨昏圈 radius=90°，民用蒙影 radius=84°，航海蒙影 radius=78°，天文蒙影 radius=72°
+        
+        // 从外到内绘制，内层覆盖外层，形成从浅到深的渐变
+        
+        // 民用蒙影区域（太阳高度-6°到0°）：最浅灰色
+        var civilTwilight = d3.geoCircle()
+          .radius(90)
+          .center([sunPos[0], sunPos[1]])
+          ();
+        context.beginPath();
+        path(civilTwilight);
+        context.fillStyle = "rgba(90, 90, 110, 0.1)";
+        context.fill();
+        
+        // 航海蒙影区域（太阳高度-12°到-6°）：较浅灰色
+        var nauticalTwilight = d3.geoCircle()
+          .radius(84)
+          .center([sunPos[0], sunPos[1]])
+          ();
+        context.beginPath();
+        path(nauticalTwilight);
+        context.fillStyle = "rgba(90, 90, 110, 0.2)";
+        context.fill();
+        
+        // 天文蒙影区域（太阳高度-18°到-12°）：较深灰色
+        var astronomicalTwilight = d3.geoCircle()
+          .radius(78)
+          .center([sunPos[0], sunPos[1]])
+          ();
+        context.beginPath();
+        path(astronomicalTwilight);
+        context.fillStyle = "rgba(90, 90, 110, 0.3)";
+        context.fill();
+        
+        // 完全黑夜区域（太阳高度<-18°）：最深灰色
+        var nightHemisphere = d3.geoCircle()
+          .radius(72)
+          .center([sunPos[0], sunPos[1]])
+          ();
+        context.beginPath();
+        path(nightHemisphere);
+        context.fillStyle = "rgba(30, 30, 50, 0.5)";
+        context.fill();
       }
       
       updateRotationParams();
