@@ -3780,11 +3780,16 @@ function resetAnimation() {
   document.getElementById("center-lon").value = 0;
   initialCenterLon = 0;
   var cLat = parseFloat(document.getElementById("center-lat").value) || 0;
+  var currentGamma = 0;
+  if (typeof projection !== 'undefined' && projection.rotate) {
+    var currentRot = projection.rotate();
+    currentGamma = currentRot && currentRot.length >= 3 ? (currentRot[2] || 0) : 0;
+  }
   var ty = document.getElementById("prj");
   if (ty) {
     var tyv = ty.options[ty.selectedIndex].value;
     if (typeof projection !== 'undefined' && projection.rotate && tyv !== "prj14") {
-      projection.rotate([0, -cLat, 0]);
+      projection.rotate([0, -cLat, currentGamma]);
     }
   }
   
@@ -3855,14 +3860,16 @@ function animate() {
     if (newLon < -180) newLon += 360;
     document.getElementById("center-lon").value = newLon.toFixed(1);
     
-    // 更新投影旋转
+    // 更新投影旋转，保持当前的 gamma 角不变（用户拖拽可能改变了 gamma）
     if (typeof projection !== 'undefined' && projection.rotate) {
       var cLat = parseFloat(document.getElementById("center-lat").value) || 0;
+      var currentRot = projection.rotate();
+      var currentGamma = currentRot && currentRot.length >= 3 ? (currentRot[2] || 0) : 0;
       var ty = document.getElementById("prj");
       if (ty) {
         var tyv = ty.options[ty.selectedIndex].value;
         if (tyv !== "prj14") {
-          projection.rotate([-newLon, -cLat, 0]);
+          projection.rotate([-newLon, -cLat, currentGamma]);
         }
       }
     }
