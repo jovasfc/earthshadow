@@ -122,6 +122,15 @@
       visibility: visible;
     }
     
+    #animation-panel {
+      position: absolute;
+      left: 10px;
+ bottom: 20px;
+      width: 250px;
+      z-index: 10000000;
+      visibility: visible;
+    }
+    
     #zoom-controls {
       position: fixed;
       left: 290px;
@@ -168,6 +177,324 @@
       border-bottom-left-radius: 4px;
       border-bottom-right-radius: 4px;
     }
+
+    /* 动画面板 - 顶部居中横幅工具条 */
+    .anim-toolbar {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000001;
+      background: rgba(20, 30, 50, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 0;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .anim-toolbar:active { cursor: grabbing; }
+    .anim-toolbar-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      cursor: default;
+    }
+    .anim-mode-group {
+      display: flex;
+      gap: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 5px;
+      padding: 2px;
+    }
+    .anim-mode-btn {
+      padding: 4px 10px;
+      border: none;
+      border-radius: 4px;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      line-height: 1.4;
+    }
+    .anim-mode-btn:hover { color: #fff; }
+    .anim-mode-active {
+      background: #4dabf7 !important;
+      color: #fff !important;
+    }
+    .anim-divider {
+      width: 1px;
+      height: 20px;
+      background: rgba(255,255,255,0.15);
+    }
+    .anim-play-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      border-radius: 50%;
+      background: #ff922b;
+      color: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .anim-play-btn:hover { background: #ffa94d; }
+    .anim-reset-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.7);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .anim-reset-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .anim-label {
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+    }
+    .anim-slider {
+      width: 60px;
+      height: 3px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      -webkit-appearance: none;
+      appearance: none;
+      cursor: pointer;
+      margin: 0;
+    }
+    .anim-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #4dabf7;
+      cursor: pointer;
+    }
+    .anim-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #4dabf7;
+      cursor: pointer;
+      border: none;
+    }
+    .anim-value {
+      color: #4dabf7;
+      font-size: 11px;
+      min-width: 26px;
+      text-align: right;
+    }
+    
+    /* 多点对比工具条 */
+    .multi-toolbar {
+      position: fixed;
+      top: 52px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000001;
+      background: rgba(20, 30, 50, 0.8);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      padding: 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      font-size: 12px;
+      white-space: nowrap;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .multi-toolbar:active { cursor: grabbing; }
+    .multi-toolbar-inner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      cursor: default;
+    }
+    .multi-label {
+      color: rgba(255,255,255,0.8);
+      font-size: 12px;
+    }
+    .multi-add-btn {
+      padding: 3px 10px;
+      border: none;
+      border-radius: 4px;
+      background: #2b8a3e;
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .multi-add-btn:hover { background: #37b24d; }
+    .multi-clear-btn {
+      padding: 3px 8px;
+      border: none;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .multi-clear-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+    .multi-count {
+      color: #4dabf7;
+      font-size: 12px;
+      font-weight: bold;
+      min-width: 16px;
+      text-align: center;
+    }
+    .multi-coord-input {
+      width: 56px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 3px;
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 4px;
+      outline: none;
+    }
+    .multi-coord-input:focus {
+      border-color: #4dabf7;
+      background: rgba(255,255,255,0.12);
+    }
+    .multi-coord-input::placeholder {
+      color: rgba(255,255,255,0.3);
+      font-size: 10px;
+    }
+    
+    /* 多点数据面板 */
+    .multi-panel {
+      position: fixed;
+      right: 12px;
+      top: 70px;
+      z-index: 10000000;
+      background: rgba(15, 25, 45, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      min-width: 420px;
+      max-width: 520px;
+      font-size: 12px;
+    }
+    .multi-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      cursor: move;
+    }
+    .multi-panel-title {
+      color: rgba(255,255,255,0.85);
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .multi-panel-close {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 16px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+    .multi-panel-close:hover { color: #fff; }
+    .multi-name-edit {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid #4dabf7;
+      border-radius: 3px;
+      color: #fff;
+      font-size: 12px;
+      padding: 1px 4px;
+      outline: none;
+      font-family: inherit;
+    }
+    .multi-label-name {
+      cursor: pointer;
+      border-bottom: 1px dashed rgba(255,255,255,0.2);
+    }
+    .multi-label-name:hover {
+      border-bottom-color: rgba(255,255,255,0.5);
+    }
+    .multi-panel-body {
+      padding: 0;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .multi-panel-body.collapsed { display: none; }
+    .multi-table-wrap { padding: 0; }
+    .multi-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+    .multi-table th {
+      text-align: left;
+      padding: 6px 8px;
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+      font-weight: normal;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+    }
+    .multi-table td {
+      padding: 5px 8px;
+      color: rgba(255,255,255,0.85);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 12px;
+      vertical-align: middle;
+    }
+    .multi-table tr:hover td { background: rgba(255,255,255,0.05); }
+    .multi-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .multi-del-btn {
+      background: none;
+      border: none;
+      color: rgba(255,80,80,0.6);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0 2px;
+      line-height: 1;
+    }
+    .multi-del-btn:hover { color: #ff5252; }
+    .multi-empty {
+      padding: 20px;
+      text-align: center;
+      color: rgba(255,255,255,0.35);
+      font-size: 13px;
+    }
+    .multi-panel-body::-webkit-scrollbar { width: 4px; }
+    .multi-panel-body::-webkit-scrollbar-track { background: transparent; }
+    .multi-panel-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
     
     .panel-section {
       margin-bottom: 8px;
@@ -283,6 +610,28 @@
       background: #fa5252;
     }
 
+    .mode-btn {
+      font-size: 13px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 500;
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .mode-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .mode-btn.mode-active {
+      background: #4dabf7;
+      color: white;
+      box-shadow: 0 2px 8px rgba(77, 171, 247, 0.3);
+    }
+
     .color-picker-row {
       display: flex;
       align-items: center;
@@ -345,6 +694,26 @@
     .info-icon:hover {
       color: #7ec8e3;
       transform: scale(1.1);
+    }
+
+    .tz-format-toggle {
+      display: inline-block;
+      margin-left: 4px;
+      padding: 0 5px;
+      font-size: 10px;
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 3px;
+      cursor: pointer;
+      color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.05);
+      transition: all 0.2s;
+      user-select: none;
+      line-height: 1.4;
+    }
+    .tz-format-toggle:hover {
+      color: #fff;
+      border-color: #4dabf7;
+      background: rgba(77,171,247,0.15);
     }
 
     .modal-overlay {
@@ -480,7 +849,9 @@
             <div class="checkbox-group"><input type="checkbox" id="sealand" checked> 海陆分布</div>
             <div class="checkbox-group"><input type="checkbox" id="country"> 行政界线</div>
             <div class="checkbox-group"><input type="checkbox" id="chq" checked> 晨昏圈 <span class="info-icon" onclick="showInfoModal('terminator')">ℹ️</span></div>
-            <div class="checkbox-group"><input type="checkbox" id="tz"> 实际时区 <span class="info-icon" onclick="showInfoModal('timezone')">ℹ️</span></div>
+            <div class="checkbox-group"><input type="checkbox" id="tz"> 时区 <span class="info-icon" onclick="showInfoModal('timezone')">ℹ️</span>
+              <span class="tz-format-toggle" id="tz-format-label" onclick="toggleTzFormat()" title="切换时区格式">UTC</span>
+            </div>
             <div class="checkbox-group"><input type="checkbox" id="show-location" checked> 当前地点</div>
             <div class="checkbox-group"><input type="checkbox" id="show-sun-point" checked> 直射点 <span class="info-icon" onclick="showInfoModal('sun-point')">ℹ️</span></div>
             <div class="checkbox-group"><input type="checkbox" id="show-twilight"> 晨昏蒙影 <span class="info-icon" onclick="showInfoModal('twilight')">ℹ️</span></div>
@@ -588,8 +959,8 @@
         <button class="btn-draw" onclick="drawmap()">绘制</button>
         <button class="btn-export" onclick="exportMap()">导出</button>
         <button class="btn-sunmoon" onclick="openSunMoon()">太阳视运动</button>
-        
-        <div class="footer-text">移植自 桐乡市凤鸣高级中学 杨天逸老师的代码</div>
+
+        <div class="footer-text">拓展自 桐乡市凤鸣高级中学 杨天逸老师的代码</div>
         
         <div id="zoom-controls">
           <button class="zoom-btn" id="zoom-in" title="放大">+</button>
@@ -624,6 +995,67 @@
         <div class="warning-text">注意：默认设置为当前地点和当前时间，</div>
         <div class="warning-text">左侧面板可设置时间，地图中可选择地点。</div>
         <div class="warning-text">数据有误差，仅作参考！</div>
+      </div>
+    </div>
+    
+    <div id="animation-toolbar" class="anim-toolbar">
+      <div class="anim-toolbar-inner" id="anim-toolbar-inner">
+        <div class="anim-mode-group">
+          <button id="mode-time" class="anim-mode-btn anim-mode-active" onclick="setAnimationMode('time')">⏱ 时间</button>
+          <button id="mode-rotation" class="anim-mode-btn" onclick="setAnimationMode('rotation')">🌍 自转</button>
+        </div>
+        <div class="anim-divider"></div>
+        <button id="btn-animate" class="anim-play-btn" onclick="toggleAnimation()">▶</button>
+        <button id="btn-reset-time" class="anim-reset-btn" onclick="resetAnimation()">⟲</button>
+        <div class="anim-divider"></div>
+        <span class="anim-label">速度</span>
+        <input type="range" id="animation-speed" class="anim-slider" min="1" max="100" value="20">
+        <span id="speed-display" class="anim-value">20x</span>
+        <div class="anim-divider"></div>
+        <span class="anim-label">蒙影</span>
+        <input type="range" id="twilight-opacity" class="anim-slider" min="0" max="100" value="50">
+        <span id="twilight-opacity-display" class="anim-value">50%</span>
+      </div>
+    </div>
+    
+    <div id="multi-toolbar" class="multi-toolbar">
+      <div class="multi-toolbar-inner">
+        <span class="multi-label">📍 多点对比</span>
+        <div class="anim-divider"></div>
+        <button id="btn-add-point" class="multi-add-btn" onclick="addCurrentPoint()">+ 添加</button>
+        <span class="multi-label" style="font-size:11px;color:rgba(255,255,255,0.5)">或输入</span>
+        <input type="number" id="multi-input-lon" class="multi-coord-input" placeholder="经度" min="-180" max="180" step="0.1">
+        <input type="number" id="multi-input-lat" class="multi-coord-input" placeholder="纬度" min="-90" max="90" step="0.1">
+        <button id="btn-add-coord" class="multi-add-btn" style="background:#1971c2" onclick="addCoordPoint()">+</button>
+        <span id="multi-count" class="multi-count">0</span>
+        <div class="anim-divider"></div>
+        <button id="btn-clear-points" class="multi-clear-btn" onclick="clearAllPoints()">清空</button>
+      </div>
+    </div>
+    
+    <div id="multi-panel" class="multi-panel">
+      <div class="multi-panel-header">
+        <span class="multi-panel-title">📍 多点日出/正午/日落</span>
+        <button class="multi-panel-close" onclick="toggleMultiPanel()">−</button>
+      </div>
+      <div class="multi-panel-body" id="multi-panel-body">
+        <div class="multi-table-wrap">
+          <table class="multi-table" id="multi-table">
+            <thead>
+              <tr>
+                <th style="width:30px"></th>
+                <th>地点</th>
+                <th>纬度, 经度</th>
+                <th>日出</th>
+                <th>正午</th>
+                <th>日落</th>
+              </tr>
+            </thead>
+            <tbody id="multi-tbody">
+            </tbody>
+          </table>
+        </div>
+        <div class="multi-empty" id="multi-empty">点击地图选点或输入经纬度，点击「+ 添加」</div>
       </div>
     </div>
     
@@ -1659,9 +2091,19 @@
   //     .on("drag", dragged))
   //     .on("click",clicked);     //地图选点   
   
-  canvas
-    .call(d3.zoom().on("start",zoomstarted).scaleExtent([0.5, 10]).translateExtent([[0,0], [width, height]]).on("zoom",zoomedd))
-    .on("click",clicked)
+  // 当投影类型改变时，重置zoom以适配新投影
+  if (window._lastPrjType && window._lastPrjType !== ty_value) {
+    canvas.on(".zoom", null);
+    window._zoomInitialized = false;
+  }
+  window._lastPrjType = ty_value;
+  
+  if (!window._zoomInitialized) {
+    canvas
+      .call(d3.zoom().on("start",zoomstarted).scaleExtent([0.5, 10]).translateExtent([[0,0], [width, height]]).on("zoom",zoomedd))
+    window._zoomInitialized = true;
+  }
+  canvas.on("click",clicked)
 
 // var zoom = d3
 //   .zoom()
@@ -1769,7 +2211,9 @@ function zoomedd(){
           var cc=moment("2014-06-01T00:00:00Z");
           var dd=cc.tz(tzlookup(canvas_lonlat[1],canvas_lonlat[0])).format().slice(-6,);
           timezone=parseInt(dd.split(":")[0])+parseInt(dd.split(":")[1])/60;
-          timezone_name=tzlookup(canvas_lonlat[1],canvas_lonlat[0])+"&nbsp;&nbsp;"+"("+timezone+")"
+          var tzUTC = timezone >= 0 ? "+" + timezone : "" + timezone;
+          timezone_name_utc = "UTC" + tzUTC;
+          timezone_name = tzlookup(canvas_lonlat[0],canvas_lonlat[1]) + "&nbsp;&nbsp;(" + timezone_name_utc + ")";
           
         }
         window.render();
@@ -1791,7 +2235,19 @@ function zoomedd(){
             }else if(lat==0){
                 lat=lat+"°"
             };
-            return lon+"&nbsp;&nbsp;"+lat+"&nbsp;"+timezone_name
+            // 动态计算时区文字，跟随 tzFormat 切换
+            var tzInfo = tzlookup(canvas_lonlat[0],canvas_lonlat[1]);
+            var cc = moment("2014-06-01T00:00:00Z");
+            var dd = cc.tz(tzlookup(canvas_lonlat[1],canvas_lonlat[0])).format().slice(-6,);
+            var tzVal = parseInt(dd.split(":")[0]) + parseInt(dd.split(":")[1]) / 60;
+            if (tzFormat === "CN") {
+              var tzInt = Math.round(tzVal);
+              tzInfo += "&nbsp;&nbsp;(" + (tzInt === 0 ? "零时区" : (tzInt > 0 ? "东" + numToChinese(tzInt) : "西" + numToChinese(tzInt)) + "区") + ")";
+            } else {
+              var tzSign = tzVal >= 0 ? "+" : "";
+              tzInfo += "&nbsp;&nbsp;(UTC" + tzSign + tzVal + ")";
+            }
+            return lat+"&nbsp;&nbsp;"+lon+"&nbsp;" + tzInfo;
         };
         div_latlon.innerHTML=display_latlon();
         console.log(canvas_lonlat);
@@ -2053,6 +2509,7 @@ function zoomedd(){
           .radius(90)
           .center(sun())
       ()
+    window.night = night;
     
 
     var sun_point=document.getElementById("sun_point"); //显示太阳直射点地理坐标
@@ -2105,7 +2562,8 @@ function zoomedd(){
         .radius(90-sun_h_delt*jj)
         .center([-1*(180-sun()[0]),-1*sun()[1]])
         ()
-      }       
+      }
+      window.sun_h = typeof sun_h !== 'undefined' ? sun_h : undefined;
     }
 
 
@@ -2126,7 +2584,7 @@ function zoomedd(){
         context.beginPath(), path(countries), context.fillStyle = "rgba(255,255,255,0)", context.fill(),context.lineWidth=strokeWidth,context.setLineDash([]),context.strokeStyle=hexToRgba(getColor("color-border"), 1),context.stroke();
       }
       if(document.getElementById("chq").checked==true){
-        context.beginPath(), path(night), context.fillStyle=hexToRgba(getColor("color-night"), 0.5), context.fill(),context.setLineDash([]),context.lineWidth=strokeWidth,context.strokeStyle="rgba(0,0,0,1)",context.stroke();
+        context.beginPath(), path(window.night), context.fillStyle=hexToRgba(getColor("color-night"), 0.5), context.fill(),context.setLineDash([]),context.lineWidth=strokeWidth,context.strokeStyle="rgba(0,0,0,1)",context.stroke();
       }
       if(typeof gridGenerator != "undefined"){
         context.beginPath(), path(gridGenerator),context.strokeStyle=hexToRgba(getColor("color-grid"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke();
@@ -2145,25 +2603,107 @@ function zoomedd(){
       }
       if(document.getElementById("tz").checked==true){
         context.beginPath(), path(TimeZones), context.strokeStyle=hexToRgba(getColor("color-timezone"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke(), context.fillStyle="rgba(255,255,255,0)",context.fill();
+        
+        // 绘制理论时区（在赤道上标记时区名称）
+        var tzColor = hexToRgba(getColor("color-timezone"), 0.5);
+        context.strokeStyle = tzColor;
+        context.lineWidth = 0.5;
+        context.setLineDash([3, 4]);
+        context.font = "9px sans-serif";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        for (var tzI = -12; tzI <= 12; tzI++) {
+          var tzLon = tzI * 15;
+          var tzOpacity = getPointOpacity(tzLon, 0);
+          // 绘制经线（从赤道到南北纬各15°）
+          var lineCoords = [];
+          // 正射投影时临时取消裁剪，以获取背面坐标
+          if (getProjectionType() === 'prj2') {
+            var origClipTz = projection.clipAngle();
+            projection.clipAngle(180);
+            for (var latJ = -15; latJ <= 15; latJ += 1) {
+              var pt = projection([tzLon, latJ]);
+              if (pt) lineCoords.push(pt);
+            }
+            projection.clipAngle(origClipTz);
+          } else {
+            for (var latJ = -15; latJ <= 15; latJ += 1) {
+              var pt = projection([tzLon, latJ]);
+              if (pt) lineCoords.push(pt);
+            }
+          }
+          if (lineCoords.length > 1) {
+            context.save();
+            context.globalAlpha = tzOpacity * 0.5;
+            context.beginPath();
+            context.moveTo(lineCoords[0][0], lineCoords[0][1]);
+            for (var ci = 1; ci < lineCoords.length; ci++) {
+              context.lineTo(lineCoords[ci][0], lineCoords[ci][1]);
+            }
+            context.stroke();
+            context.restore();
+          }
+          // 赤道上标时区名称
+          var labelPt;
+          if (getProjectionType() === 'prj2') {
+            var origClipTz2 = projection.clipAngle();
+            projection.clipAngle(180);
+            labelPt = projection([tzLon, 1]);
+            projection.clipAngle(origClipTz2);
+          } else {
+            labelPt = projection([tzLon, 1]);
+          }
+          if (labelPt) {
+            var tzLabel;
+            if (tzFormat === "CN") {
+              if (tzI === 0) tzLabel = "零时区";
+              else if (tzI > 0) tzLabel = "东" + numToChinese(tzI) + "区";
+              else tzLabel = "西" + numToChinese(Math.abs(tzI)) + "区";
+            } else {
+              tzLabel = tzI === 0 ? "UTC±0" : (tzI > 0 ? "UTC+" + tzI : "UTC" + tzI);
+            }
+            context.save();
+            context.globalAlpha = tzOpacity;
+            context.fillStyle = hexToRgba(getColor("color-timezone"), 0.8);
+            context.fillText(tzLabel, labelPt[0], labelPt[1] + 10);
+            context.restore();
+          }
+        }
+        context.setLineDash([]);
       }
       
       if(document.getElementById("show-geojson").checked && window.importedGeoJSON) {
         context.beginPath(), path(window.importedGeoJSON), context.fillStyle = "rgba(255, 100, 100, 0.5)", context.fill(),context.lineWidth=strokeWidth,context.setLineDash([]),context.strokeStyle="rgba(255, 0, 0, 1)",context.stroke();
       }
       
-      if(typeof sun_h != "undefined"){
-        for(var kk=0;kk<sun_h.length;kk=kk+1){
-          context.beginPath(), path(sun_h[kk]),context.strokeStyle=hexToRgba(getColor("color-sun-height"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke();
+      if(typeof window.sun_h != "undefined" && window.sun_h){
+        for(var kk=0;kk<window.sun_h.length;kk=kk+1){
+          context.beginPath(), path(window.sun_h[kk]),context.strokeStyle=hexToRgba(getColor("color-sun-height"), 1),context.lineWidth=strokeWidth,context.setLineDash([]),context.stroke();
         }
       }
       
       if (currentLocation && document.getElementById("show-location").checked) {
-        var point = projection([currentLocation.lon, currentLocation.lat]);
+        var lon = currentLocation.lon;
+        var lat = currentLocation.lat;
+        var opacity = getPointOpacity(lon, lat);
+        var point;
+        
+        // 对正射投影，用无裁剪的投影获取背面坐标
+        if (getProjectionType() === 'prj2') {
+          var origClip = projection.clipAngle();
+          projection.clipAngle(180);
+          point = projection([lon, lat]);
+          projection.clipAngle(origClip);
+        } else {
+          point = projection([lon, lat]);
+        }
+        
         if (point) {
           var x = point[0];
           var y = point[1];
           var size = 4;
           
+          context.globalAlpha = opacity;
           context.fillStyle = "#ff0000";
           
           context.beginPath();
@@ -2172,9 +2712,10 @@ function zoomedd(){
           
           context.beginPath();
           context.arc(x, y, size + 5, 0, 2 * Math.PI);
-          context.strokeStyle = "rgba(255, 0, 0, 0.3)";
+          context.strokeStyle = "rgba(255, 0, 0, " + (0.3 * opacity) + ")";
           context.lineWidth = 2;
           context.stroke();
+          context.globalAlpha = 1;
         }
       }
       
@@ -2187,13 +2728,27 @@ function zoomedd(){
         var sunLon = ((sunPos[0] - 180 + 360) % 360);
         if (sunLon > 180) sunLon -= 360;
         var sunLat = -sunPos[1];
-        var sunPoint = projection([sunLon, sunLat]);
+        var opacity = getPointOpacity(sunLon, sunLat);
+        var sunPoint;
+        
+        // 对正射投影，用无裁剪的投影获取背面坐标
+        if (getProjectionType() === 'prj2') {
+          var origClip = projection.clipAngle();
+          projection.clipAngle(180);
+          sunPoint = projection([sunLon, sunLat]);
+          projection.clipAngle(origClip);
+        } else {
+          sunPoint = projection([sunLon, sunLat]);
+        }
+        
         if (sunPoint) {
           var sx = sunPoint[0];
           var sy = sunPoint[1];
           
           // 使用高度线的颜色
           var sunPointColor = getColor("color-sun-height");
+          
+          context.globalAlpha = opacity;
           
           // 绘制太阳符号（带光芒的圆）
           context.fillStyle = sunPointColor;
@@ -2217,18 +2772,16 @@ function zoomedd(){
           context.font = "bold 12px sans-serif";
           context.textAlign = "center";
           context.fillText("直射点", sx, sy - 20);
+          
+          context.globalAlpha = 1;
         }
       }
       
       // 绘制晨昏蒙影
       if (document.getElementById("show-twilight").checked) {
         var sunPos = sun();
-        // sun()返回夜半球中心
-        // 从夜半球中心到晨昏圈绘制，形成渐变效果
-        // 太阳高度 = -90° + radius（角距离）
-        // 所以：晨昏圈 radius=90°，民用蒙影 radius=84°，航海蒙影 radius=78°，天文蒙影 radius=72°
-        
-        // 从外到内绘制，内层覆盖外层，形成从浅到深的渐变
+        // 获取不透明度
+        var twOpacity = (parseFloat(document.getElementById("twilight-opacity").value) || 50) / 100;
         
         // 民用蒙影区域（太阳高度-6°到0°）：最浅灰色
         var civilTwilight = d3.geoCircle()
@@ -2237,7 +2790,7 @@ function zoomedd(){
           ();
         context.beginPath();
         path(civilTwilight);
-        context.fillStyle = "rgba(90, 90, 110, 0.1)";
+        context.fillStyle = "rgba(90, 90, 110, " + (0.1 * twOpacity) + ")";
         context.fill();
         
         // 航海蒙影区域（太阳高度-12°到-6°）：较浅灰色
@@ -2247,7 +2800,7 @@ function zoomedd(){
           ();
         context.beginPath();
         path(nauticalTwilight);
-        context.fillStyle = "rgba(90, 90, 110, 0.2)";
+        context.fillStyle = "rgba(90, 90, 110, " + (0.2 * twOpacity) + ")";
         context.fill();
         
         // 天文蒙影区域（太阳高度-18°到-12°）：较深灰色
@@ -2257,7 +2810,7 @@ function zoomedd(){
           ();
         context.beginPath();
         path(astronomicalTwilight);
-        context.fillStyle = "rgba(90, 90, 110, 0.3)";
+        context.fillStyle = "rgba(90, 90, 110, " + (0.3 * twOpacity) + ")";
         context.fill();
         
         // 完全黑夜区域（太阳高度<-18°）：最深灰色
@@ -2267,12 +2820,115 @@ function zoomedd(){
           ();
         context.beginPath();
         path(nightHemisphere);
-        context.fillStyle = "rgba(30, 30, 50, 0.5)";
+        context.fillStyle = "rgba(30, 30, 50, " + (0.5 * twOpacity) + ")";
         context.fill();
+      }
+      
+      // 绘制多点对比标记
+      if (window.multiPoints && window.multiPoints.length > 0) {
+        for (var mi = 0; mi < window.multiPoints.length; mi++) {
+          var mp = window.multiPoints[mi];
+          var mpOpacity = getPointOpacity(mp.lon, mp.lat);
+          var mpPoint;
+          
+          // 对正射投影，用无裁剪的投影获取背面坐标
+          if (getProjectionType() === 'prj2') {
+            var origClip2 = projection.clipAngle();
+            projection.clipAngle(180);
+            mpPoint = projection([mp.lon, mp.lat]);
+            projection.clipAngle(origClip2);
+          } else {
+            mpPoint = projection([mp.lon, mp.lat]);
+          }
+          
+          if (mpPoint) {
+            var mx = mpPoint[0], my = mpPoint[1];
+            
+            context.globalAlpha = mpOpacity;
+            
+            // 实心圆点
+            context.fillStyle = mp.color;
+            context.beginPath();
+            context.arc(mx, my, 5, 0, 2 * Math.PI);
+            context.fill();
+            
+            // 外圈光晕
+            context.beginPath();
+            context.arc(mx, my, 8, 0, 2 * Math.PI);
+            context.strokeStyle = mp.color;
+            context.lineWidth = 1.5;
+            context.globalAlpha = mpOpacity * 0.4;
+            context.stroke();
+            
+            // 标签 — 名称(经纬度)
+            context.globalAlpha = mpOpacity;
+            var latSym = mp.lat >= 0 ? "N" : "S";
+            var lonSym = mp.lon >= 0 ? "E" : "W";
+            var mapLabel = mp.label + " (" + Math.abs(mp.lat).toFixed(1) + "°" + latSym + ", " + Math.abs(mp.lon).toFixed(1) + "°" + lonSym + ")";
+            context.fillStyle = "#fff";
+            context.font = "bold 11px sans-serif";
+            context.textAlign = "left";
+            var labelX = mx + 10;
+            var labelY = my + 4;
+            // 标签背景
+            var txtW = context.measureText(mapLabel).width;
+            context.fillStyle = "rgba(0,0,0,0.5)";
+            context.fillRect(labelX - 2, labelY - 9, txtW + 4, 14);
+            context.fillStyle = mp.color;
+            context.fillText(mapLabel, labelX, labelY);
+            
+            context.globalAlpha = 1;
+          }
+        }
       }
       
       updateRotationParams();
   };
+
+    window.updateTimeState = function() {
+      // 从datetime输入框重新计算时间
+      var sq = document.getElementById("shiqu");
+      var sq_value = sq.options[sq.selectedIndex].value;
+      time = document.getElementById("datetime").value + sq_value;
+      var dayOfYear = (date) => Math.floor((date - new Date(date.getFullYear(),0,0))/(1000*60*60*24));
+      var day_index = dayOfYear(new Date(time));
+      time = new Date(new Date(time).getTime() + -1*delta_time[day_index]["mm"]*60*1000 + -1*delta_time[day_index]["ss"]*1000);
+      
+      // 重新计算晨昏圈
+      window.night = d3.geoCircle().radius(90).center(sun())();
+      
+      // 重新计算太阳高度圈
+      var sun_d = document.getElementsByName("sun_d");
+      var sun_d_value = "none";
+      for(var ii=0;ii<sun_d.length;ii=ii+1){
+        if (sun_d[ii].checked==true){
+          sun_d_value = sun_d[ii].value;
+          break;
+        }
+      }
+      if (sun_d_value != "none") {
+        var sun_h_delt;
+        if (sun_d_value == "custom") {
+          sun_h_delt = parseFloat(document.getElementById("sun_d_custom").value);
+        } else {
+          sun_h_delt = parseFloat(sun_d_value);
+        }
+        var sun_h_new = [];
+        for(var jj=0;jj<90/sun_h_delt;jj=jj+1){
+          sun_h_new[jj] = d3.geoCircle().radius(90-sun_h_delt*jj).center([-1*(180-sun()[0]),-1*sun()[1]])();
+        }
+        window.sun_h = sun_h_new;
+      }
+      
+      // 更新太阳直射点文字
+      document.getElementById("sun_point").innerHTML = sun_point_text();
+      
+      // 刷新多点数据面板
+      if (typeof updateMultiPanel === 'function') updateMultiPanel();
+      
+      // 重新绘制地图
+      window.render();
+    };
 
     var colorSchemeSelect = document.getElementById("color-scheme");
     if (colorSchemeSelect && colorSchemeSelect.value && colorSchemeSelect.value !== 'default') {
@@ -2441,15 +3097,17 @@ function IsPC(){               //判断移动端或PC端
   }
 
 var download_btn=document.getElementById("download_btn");
-download_btn.onclick=() =>{
-  var alink = document.createElement("a");
-  var can_img=document.getElementById("can");
-  var img_url=can_img.toDataURL("img/png");
-  var img_blob=this.base64ToBlob(img_url);
-  var evt=document.createEvent("HTMLEvents");
-  evt.initEvent("click",true,true);
-  alink.href=URL.createObjectURL(img_blob);
-  alink.click();
+if (download_btn) {
+  download_btn.onclick=() =>{
+    var alink = document.createElement("a");
+    var can_img=document.getElementById("can");
+    var img_url=can_img.toDataURL("img/png");
+    var img_blob=this.base64ToBlob(img_url);
+    var evt=document.createEvent("HTMLEvents");
+    evt.initEvent("click",true,true);
+    alink.href=URL.createObjectURL(img_blob);
+    alink.click();
+  }
 }
 
 function base64ToBlob(code) {
@@ -2467,7 +3125,9 @@ function base64ToBlob(code) {
 }
 
 var sun_point=document.getElementById("sun_point");
-sun_point.innerHTML=sun()[0];
+if (typeof sun === 'function') {
+  sun_point.innerHTML=sun()[0];
+}
 
 function exportMap() {
   console.log('exportMap called');
@@ -2740,5 +3400,543 @@ function openSunMoon() {
   var url = "sun-moon.html?lat=" + lat + "&lon=" + lon + "&time=" + encodeURIComponent(datetime);
   window.open(url, "_blank");
 }
+
+// 获取投影类型简称
+function getProjectionType() {
+  var el = document.getElementById("prj");
+  return el.options[el.selectedIndex].value;
+}
+
+// 判断点是否在正射投影背面，返回不透明度（背面变虚）
+function getPointOpacity(lon, lat) {
+  if (getProjectionType() !== 'prj2') return 1; // 非正射投影不虚化
+  
+  var centerLon = parseFloat(document.getElementById("center-lon").value) || 0;
+  var centerLat = parseFloat(document.getElementById("center-lat").value) || 0;
+  
+  var dLon = (lon - centerLon) * Math.PI / 180;
+  var rLat = lat * Math.PI / 180;
+  var rCenterLat = centerLat * Math.PI / 180;
+  
+  var cosAngle = Math.sin(rLat) * Math.sin(rCenterLat) + 
+                 Math.cos(rLat) * Math.cos(rCenterLat) * Math.cos(dLon);
+  
+  if (cosAngle >= 0) return 1; // 可见面
+  
+  // 背面：角度越深越虚
+  var fade = Math.min(1, Math.abs(cosAngle) * 2);
+  return Math.max(0.15, 1 - fade);
+}
+
+// ====== 多点对比功能 ======
+const POINT_COLORS = ['#ff6b6b', '#51cf66', '#4dabf7', '#fcc419', '#cc5de8', '#ff922b', '#20c997', '#e06666'];
+var multiPoints = [];
+var pointIdCounter = 0;
+var tzFormat = "UTC"; // "UTC" 或 "CN"
+
+function numToChinese(n) {
+  var map = ['零','一','二','三','四','五','六','七','八','九','十','十一','十二'];
+  return map[Math.abs(n)] || n;
+}
+
+function toggleTzFormat() {
+  tzFormat = (tzFormat === "UTC") ? "CN" : "UTC";
+  document.getElementById("tz-format-label").textContent = tzFormat;
+  // 更新底部时区文字
+  if (typeof display_latlon === 'function') {
+    document.getElementById("latlon").innerHTML = display_latlon();
+  }
+  // 更新赤道时区标签
+  if (typeof window.render === 'function') window.render();
+}
+
+let multiPanelOpen = true;
+
+function toggleMultiPanel() {
+  multiPanelOpen = !multiPanelOpen;
+  var body = document.getElementById("multi-panel-body");
+  var btn = document.querySelector(".multi-panel-close");
+  if (multiPanelOpen) {
+    body.classList.remove("collapsed");
+    btn.textContent = "−";
+  } else {
+    body.classList.add("collapsed");
+    btn.textContent = "+";
+  }
+}
+
+function addCurrentPoint() {
+  if (typeof canvas_lonlat === 'undefined' || !canvas_lonlat) {
+    alert("请先在地图上点击选择地点");
+    return;
+  }
+  var lon = canvas_lonlat[0];
+  var lat = canvas_lonlat[1];
+  // 检查是否已添加过相同点（±0.5°内算重复）
+  for (var i = 0; i < multiPoints.length; i++) {
+    if (Math.abs(multiPoints[i].lon - lon) < 0.5 && Math.abs(multiPoints[i].lat - lat) < 0.5) {
+      return; // 重复，忽略
+    }
+  }
+  var id = pointIdCounter++;
+  var color = POINT_COLORS[multiPoints.length % POINT_COLORS.length];
+  multiPoints.push({ id: id, lon: lon, lat: lat, color: color, label: "点" + (multiPoints.length + 1) });
+  updateMultiPanel();
+  if (typeof window.render === 'function') window.render();
+}
+
+function addCoordPoint() {
+  var lonInput = document.getElementById("multi-input-lon");
+  var latInput = document.getElementById("multi-input-lat");
+  var lon = parseFloat(lonInput.value);
+  var lat = parseFloat(latInput.value);
+  if (isNaN(lon) || isNaN(lat)) {
+    alert("请输入有效的经度(-180~180)和纬度(-90~90)");
+    return;
+  }
+  if (lon < -180 || lon > 180 || lat < -90 || lat > 90) {
+    alert("经度范围 -180~180，纬度范围 -90~90");
+    return;
+  }
+  // 检查重复
+  for (var i = 0; i < multiPoints.length; i++) {
+    if (Math.abs(multiPoints[i].lon - lon) < 0.5 && Math.abs(multiPoints[i].lat - lat) < 0.5) {
+      alert("该地点已添加");
+      return;
+    }
+  }
+  var id = pointIdCounter++;
+  var color = POINT_COLORS[multiPoints.length % POINT_COLORS.length];
+  multiPoints.push({ id: id, lon: lon, lat: lat, color: color, label: "点" + (multiPoints.length + 1) });
+  // 同时更新 canvas_lonlat，方便继续添加邻近点
+  canvas_lonlat = [lon, lat];
+  updateMultiPanel();
+  if (typeof window.render === 'function') window.render();
+  // 清空输入
+  lonInput.value = "";
+  latInput.value = "";
+}
+
+function removePoint(id) {
+  multiPoints = multiPoints.filter(function(p) { return p.id !== id; });
+  // 重新编号标签
+  multiPoints.forEach(function(p, idx) { p.label = "点" + (idx + 1); });
+  updateMultiPanel();
+  if (typeof window.render === 'function') window.render();
+}
+
+function clearAllPoints() {
+  if (multiPoints.length === 0) return;
+  if (!confirm("确定清空所有地点？")) return;
+  multiPoints = [];
+  pointIdCounter = 0;
+  updateMultiPanel();
+  if (typeof window.render === 'function') window.render();
+}
+
+function getLocalTimezoneOffset(lat, lon) {
+  try {
+    var tzName = tzlookup(lat, lon);
+    var cc = moment("2014-06-01T00:00:00Z");
+    var dd = cc.tz(tzName).format();
+    var match = dd.match(/([+-]\d{2}):(\d{2})$/);
+    if (match) {
+      return parseInt(match[1]) + parseInt(match[2]) / 60;
+    }
+    return Math.round(lon / 15);
+  } catch(e) {
+    return Math.round(lon / 15);
+  }
+}
+
+function formatLocalTime(date, tzOffset) {
+  if (!date || isNaN(date.getTime())) return "--:--";
+  try {
+    var local = moment(date).utcOffset(tzOffset * 60);
+    return local.format('HH:mm');
+  } catch(e) {
+    return "--:--";
+  }
+}
+
+// 坐标输入框回车提交
+(function() {
+  var lonInp = document.getElementById("multi-input-lon");
+  var latInp = document.getElementById("multi-input-lat");
+  if (lonInp && latInp) {
+    function onEnter(e) {
+      if (e.key === "Enter") addCoordPoint();
+    }
+    lonInp.addEventListener("keydown", onEnter);
+    latInp.addEventListener("keydown", onEnter);
+  }
+})();
+
+function updateMultiPanel() {
+  var tbody = document.getElementById("multi-tbody");
+  var empty = document.getElementById("multi-empty");
+  var count = document.getElementById("multi-count");
+  
+  count.textContent = multiPoints.length;
+  
+  if (multiPoints.length === 0) {
+    tbody.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+  
+  // 获取当前时间
+  var sq = document.getElementById("shiqu");
+  var sq_value = sq.options[sq.selectedIndex].value;
+  var timeStr = document.getElementById("datetime").value + sq_value;
+  var dayOfYear = (date) => Math.floor((date - new Date(date.getFullYear(),0,0))/(1000*60*60*24));
+  var dayIndex = dayOfYear(new Date(timeStr));
+  var time = new Date(new Date(timeStr).getTime() + 
+    -1*delta_time[dayIndex]["mm"]*60*1000 + 
+    -1*delta_time[dayIndex]["ss"]*1000);
+  
+  var html = "";
+  for (var i = 0; i < multiPoints.length; i++) {
+    var p = multiPoints[i];
+    var tz = getLocalTimezoneOffset(p.lat, p.lon);
+    
+    // 获取日出/正午/日落（SunCalc 内部用地理坐标，getTimes(lat, lng)）
+    var times = SunCalc.getTimes(time, p.lat, p.lon);
+    
+    var sunriseStr = formatLocalTime(times.sunrise, tz);
+    var noonStr = formatLocalTime(times.solarNoon, tz);
+    var sunsetStr = formatLocalTime(times.sunset, tz);
+    
+    var lonStr = p.lon >= 0 ? p.lon.toFixed(1) + "°E" : (-p.lon).toFixed(1) + "°W";
+    var latStr = p.lat >= 0 ? p.lat.toFixed(1) + "°N" : (-p.lat).toFixed(1) + "°S";
+    
+    html += "<tr>" +
+      "<td><span class=\"multi-dot\" style=\"background:" + p.color + "\"></span></td>" +
+      "<td><span class=\"multi-label-name\" data-id=\"" + p.id + "\" title=\"双击编辑名称\">" + p.label + "</span></td>" +
+      "<td style=\"font-size:11px;color:rgba(255,255,255,0.6)\">" + latStr + ", " + lonStr + "</td>" +
+      "<td style=\"color:#ffd43b\">" + sunriseStr + "</td>" +
+      "<td style=\"color:#ff922b\">" + noonStr + "</td>" +
+      "<td style=\"color:#4dabf7\">" + sunsetStr + "</td>" +
+      "<td><button class=\"multi-del-btn\" onclick=\"removePoint(" + p.id + ")\">✕</button></td>" +
+      "</tr>";
+  }
+  tbody.innerHTML = html;
+}
+
+// 双击编辑地点名称（事件委托）
+document.getElementById("multi-panel-body").addEventListener("dblclick", function(e) {
+  var span = e.target.closest(".multi-label-name");
+  if (!span) return;
+  var id = parseInt(span.dataset.id);
+  var oldName = span.textContent;
+  
+  var input = document.createElement("input");
+  input.type = "text";
+  input.className = "multi-name-edit";
+  input.value = oldName;
+  input.style.width = Math.max(60, oldName.length * 8) + "px";
+  
+  span.textContent = "";
+  span.appendChild(input);
+  input.focus();
+  input.select();
+  
+  function finishEdit() {
+    var newName = input.value.trim();
+    if (newName && newName !== oldName) {
+      for (var i = 0; i < multiPoints.length; i++) {
+        if (multiPoints[i].id === id) {
+          multiPoints[i].label = newName;
+          break;
+        }
+      }
+      updateMultiPanel();
+      if (typeof window.render === 'function') window.render();
+    } else {
+      span.textContent = oldName;
+    }
+  }
+  
+  input.addEventListener("blur", finishEdit);
+  input.addEventListener("keydown", function(ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); input.blur(); }
+    if (ev.key === "Escape") { span.textContent = oldName; }
+  });
+  e.stopPropagation();
+});
+
+// 工具条拖动
+(function() {
+  var tb = document.getElementById("multi-toolbar");
+  var dragging = false, sx, sy, ox, oy;
+  tb.addEventListener("mousedown", function(e) {
+    if (e.target.tagName === 'BUTTON' || e.target.closest('.multi-toolbar-inner') === null) return;
+    dragging = true;
+    var r = tb.getBoundingClientRect();
+    ox = r.left; oy = r.top;
+    sx = e.clientX; sy = e.clientY;
+    tb.style.left = ox + 'px';
+    tb.style.transform = 'none';
+    tb.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener("mousemove", function(e) {
+    if (!dragging) return;
+    tb.style.left = (ox + e.clientX - sx) + 'px';
+    tb.style.top = (oy + e.clientY - sy) + 'px';
+  });
+  document.addEventListener("mouseup", function() {
+    if (dragging) { dragging = false; tb.style.cursor = 'grab'; }
+  });
+})();
+
+// 数据面板拖动
+(function() {
+  var panel = document.getElementById("multi-panel");
+  var header = panel.querySelector(".multi-panel-header");
+  var dragging = false, sx, sy, ox, oy;
+  header.addEventListener("mousedown", function(e) {
+    if (e.target.tagName === 'BUTTON') return;
+    dragging = true;
+    var r = panel.getBoundingClientRect();
+    ox = r.left; oy = r.top;
+    sx = e.clientX; sy = e.clientY;
+    panel.style.right = 'auto';
+    panel.style.left = ox + 'px';
+    panel.style.top = oy + 'px';
+    e.preventDefault();
+  });
+  document.addEventListener("mousemove", function(e) {
+    if (!dragging) return;
+    panel.style.left = (ox + e.clientX - sx) + 'px';
+    panel.style.top = (oy + e.clientY - sy) + 'px';
+  });
+  document.addEventListener("mouseup", function() {
+    dragging = false;
+  });
+})();
+
+// 动画模式: 'time'=时间推移; 'rotation'=地球自转
+let animationMode = 'time';
+let animationRunning = false;
+let animationId = null;
+let animationStartTime = null;
+let animationSpeed = 20; // 默认速度：每秒增加20分钟
+let initialTime = null;
+let initialCenterLon = 0; // 地球自转初始经度
+
+function toggleAnimation() {
+  const btn = document.getElementById("btn-animate");
+  if (animationRunning) {
+    stopAnimation();
+    btn.textContent = "▶";
+    btn.style.background = "#ff922b";
+  } else {
+    startAnimation();
+    btn.textContent = "⏸";
+    btn.style.background = "#fa5252";
+  }
+}
+
+function startAnimation() {
+  if (animationRunning) return;
+  
+  animationRunning = true;
+  animationStartTime = performance.now();
+  
+  // 保存当前时间/经度作为动画起点，暂停后恢复也从当前位置继续
+  initialTime = document.getElementById("datetime").value;
+  initialCenterLon = parseFloat(document.getElementById("center-lon").value) || 0;
+  
+  animate();
+}
+
+function stopAnimation() {
+  animationRunning = false;
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+}
+
+function resetAnimation() {
+  stopAnimation();
+  
+  // 重置为当前时间
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const datetimeString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  
+  document.getElementById("datetime").value = datetimeString;
+  initialTime = datetimeString;
+  
+  // 重置中心经度和投影
+  document.getElementById("center-lon").value = 0;
+  initialCenterLon = 0;
+  var cLat = parseFloat(document.getElementById("center-lat").value) || 0;
+  var ty = document.getElementById("prj");
+  if (ty) {
+    var tyv = ty.options[ty.selectedIndex].value;
+    if (typeof projection !== 'undefined' && projection.rotate && tyv !== "prj14") {
+      projection.rotate([0, -cLat, 0]);
+    }
+  }
+  
+  // 重置按钮状态
+  const btn = document.getElementById("btn-animate");
+  btn.textContent = "▶";
+  btn.style.background = "#ff922b";
+  
+  // 重新绘制地图
+  drawmap();
+  
+  // 刷新多点数据面板
+  if (typeof updateMultiPanel === 'function') updateMultiPanel();
+}
+
+// 设置动画模式
+function setAnimationMode(mode) {
+  animationMode = mode;
+  
+  // 更新按钮样式
+  var timeBtn = document.getElementById("mode-time");
+  var rotBtn = document.getElementById("mode-rotation");
+  
+  timeBtn.className = 'anim-mode-btn' + (mode === 'time' ? ' anim-mode-active' : '');
+  rotBtn.className = 'anim-mode-btn' + (mode === 'rotation' ? ' anim-mode-active' : '');
+  
+  // 如果动画正在运行，重新开始以应用新模式
+  if (animationRunning) {
+    stopAnimation();
+    // 切换模式时重置开始时间和初始状态
+    animationStartTime = performance.now();
+    initialTime = document.getElementById("datetime").value;
+    initialCenterLon = parseFloat(document.getElementById("center-lon").value) || 0;
+    startAnimation();
+  }
+}
+
+function animate() {
+  if (!animationRunning) return;
+  
+  const currentTime = performance.now();
+  const elapsedSeconds = (currentTime - animationStartTime) / 1000;
+  
+  // 两种模式都先计算时间偏移（分钟）
+  const addedMinutes = elapsedSeconds * animationSpeed;
+  const startDate = new Date(initialTime);
+  const newDate = new Date(startDate.getTime() + addedMinutes * 60 * 1000);
+  
+  // 更新时间输入
+  const year = newDate.getFullYear();
+  const month = String(newDate.getMonth() + 1).padStart(2, '0');
+  const day = String(newDate.getDate()).padStart(2, '0');
+  const hours = String(newDate.getHours()).padStart(2, '0');
+  const minutes = String(newDate.getMinutes()).padStart(2, '0');
+  const seconds = String(newDate.getSeconds()).padStart(2, '0');
+  const datetimeString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  
+  document.getElementById("datetime").value = datetimeString;
+  
+  if (animationMode === 'rotation') {
+    // 模式二：地球向东自转
+    // 时间推进让晨昏线在地理坐标中向西移动，同时投影中心以相同角速度向西移
+    // 两者抵消：晨昏线视觉位置不变，地图特征向东滑动（地球自转效果）
+    // 速度：0.25°/分钟（地球自转15°/小时）
+    var lonDelta = addedMinutes * 0.25;
+    var newLon = ((initialCenterLon - lonDelta) % 360);
+    if (newLon > 180) newLon -= 360;
+    if (newLon < -180) newLon += 360;
+    document.getElementById("center-lon").value = newLon.toFixed(1);
+    
+    // 更新投影旋转
+    if (typeof projection !== 'undefined' && projection.rotate) {
+      var cLat = parseFloat(document.getElementById("center-lat").value) || 0;
+      var ty = document.getElementById("prj");
+      if (ty) {
+        var tyv = ty.options[ty.selectedIndex].value;
+        if (tyv !== "prj14") {
+          projection.rotate([-newLon, -cLat, 0]);
+        }
+      }
+    }
+  }
+  
+  // 重新绘制地图
+  if (typeof window.updateTimeState === 'function') {
+    window.updateTimeState();
+  } else {
+    drawmap();
+  }
+  
+  // 继续动画
+  animationId = requestAnimationFrame(animate);
+}
+
+// 动画速度控制
+document.getElementById("animation-speed").addEventListener("input", function() {
+  animationSpeed = parseInt(this.value);
+  document.getElementById("speed-display").textContent = animationSpeed + "x";
+});
+
+// 晨昏蒙影不透明度控制
+document.getElementById("twilight-opacity").addEventListener("input", function() {
+  document.getElementById("twilight-opacity-display").textContent = this.value + "%";
+  // 如果晨昏蒙影已开启，立即刷新
+  if (document.getElementById("show-twilight").checked && typeof window.render === 'function') {
+    window.render();
+  }
+});
+
+// 页面卸载时停止动画
+window.addEventListener("beforeunload", function() {
+  stopAnimation();
+});
+
+// 动画工具条拖动功能
+(function() {
+  var toolbar = document.getElementById("animation-toolbar");
+  var isDragging = false;
+  var startX, startY, origX, origY;
+
+  toolbar.addEventListener("mousedown", function(e) {
+    // 如果点击的是内部可交互元素，不触发拖动
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.closest('.anim-toolbar-inner') === null) {
+      return;
+    }
+    isDragging = true;
+    var rect = toolbar.getBoundingClientRect();
+    origX = rect.left;
+    origY = rect.top;
+    startX = e.clientX;
+    startY = e.clientY;
+    // 移除 transform 居中，改用 left
+    toolbar.style.left = origX + 'px';
+    toolbar.style.transform = 'none';
+    toolbar.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", function(e) {
+    if (!isDragging) return;
+    var dx = e.clientX - startX;
+    var dy = e.clientY - startY;
+    toolbar.style.left = (origX + dx) + 'px';
+    toolbar.style.top = (origY + dy) + 'px';
+  });
+
+  document.addEventListener("mouseup", function() {
+    if (isDragging) {
+      isDragging = false;
+      toolbar.style.cursor = 'grab';
+    }
+  });
+})();
 
 </script>
