@@ -2213,7 +2213,7 @@ function zoomedd(){
           timezone=parseInt(dd.split(":")[0])+parseInt(dd.split(":")[1])/60;
           var tzUTC = timezone >= 0 ? "+" + timezone : "" + timezone;
           timezone_name_utc = "UTC" + tzUTC;
-          timezone_name = tzlookup(canvas_lonlat[0],canvas_lonlat[1]) + "&nbsp;&nbsp;(" + timezone_name_utc + ")";
+          timezone_name = tzlookup(canvas_lonlat[1],canvas_lonlat[0]) + "&nbsp;&nbsp;(" + timezone_name_utc + ")";
           
         }
         window.render();
@@ -2236,18 +2236,38 @@ function zoomedd(){
                 lat=lat+"°"
             };
             // 动态计算时区文字，跟随 tzFormat 切换
-            var tzInfo = tzlookup(canvas_lonlat[0],canvas_lonlat[1]);
-            var cc = moment("2014-06-01T00:00:00Z");
-            var dd = cc.tz(tzlookup(canvas_lonlat[1],canvas_lonlat[0])).format().slice(-6,);
-            var tzVal = parseInt(dd.split(":")[0]) + parseInt(dd.split(":")[1]) / 60;
-            if (tzFormat === "CN") {
-              var tzInt = Math.round(tzVal);
-              tzInfo += "&nbsp;&nbsp;(" + (tzInt === 0 ? "零时区" : (tzInt > 0 ? "东" + numToChinese(tzInt) : "西" + numToChinese(tzInt)) + "区") + ")";
-            } else {
-              var tzSign = tzVal >= 0 ? "+" : "";
-              tzInfo += "&nbsp;&nbsp;(UTC" + tzSign + tzVal + ")";
+            var tzInfo = lat + "&nbsp;&nbsp;" + lon;
+            try {
+              // tzlookup(lat, lon) — 标准调用顺序
+              var tzName = tzlookup(canvas_lonlat[1], canvas_lonlat[0]);
+              if (tzName) {
+                tzInfo += "&nbsp;" + tzName;
+                // 用 moment.tz 获取 UTC 偏移
+                var cc = moment("2014-06-01T00:00:00Z");
+                var dd = cc.tz(tzName).format().slice(-6,);
+                var tzVal = parseInt(dd.split(":")[0]) + parseInt(dd.split(":")[1]) / 60;
+                if (tzFormat === "CN") {
+                  var tzInt = Math.round(tzVal);
+                  tzInfo += "&nbsp;&nbsp;(" + (tzInt === 0 ? "零时区" : (tzInt > 0 ? "东" + numToChinese(tzInt) : "西" + numToChinese(tzInt)) + "区") + ")";
+                } else {
+                  var tzSign = tzVal >= 0 ? "+" : "";
+                  tzInfo += "&nbsp;&nbsp;(UTC" + tzSign + tzVal + ")";
+                }
+              } else {
+                // tzlookup 无数据时，按经度推算理论时区
+                throw new Error("no tz data");
+              }
+            } catch(e) {
+              // 降级：按经度推算理论时区
+              var tzVal = Math.round(canvas_lonlat[0] / 15);
+              if (tzFormat === "CN") {
+                tzInfo += "&nbsp;&nbsp;(" + (tzVal === 0 ? "零时区" : (tzVal > 0 ? "东" + numToChinese(tzVal) : "西" + numToChinese(Math.abs(tzVal))) + "区") + ")";
+              } else {
+                var tzSign = tzVal >= 0 ? "+" : "";
+                tzInfo += "&nbsp;&nbsp;(UTC" + tzSign + tzVal + ")";
+              }
             }
-            return lat+"&nbsp;&nbsp;"+lon+"&nbsp;" + tzInfo;
+            return tzInfo;
         };
         div_latlon.innerHTML=display_latlon();
         console.log(canvas_lonlat);
@@ -2395,6 +2415,10 @@ function zoomedd(){
   function clicked(){
         canvas_xy=d3.mouse(this);      //获取canvas点击画布坐标
         canvas_lonlat=projection.invert(canvas_xy);    //获取canvas点击的经纬度坐标
+        // 无效点击（如正交投影中点击地球盘面外部）不做处理
+        if (!canvas_lonlat || !isFinite(canvas_lonlat[0]) || !isFinite(canvas_lonlat[1])) {
+          return;
+        }
         canvas_1_xy=projection([canvas_lonlat[0],canvas_lonlat[1]]);
         p_lon=canvas_lonlat[0];
         p_lat=canvas_lonlat[1];
