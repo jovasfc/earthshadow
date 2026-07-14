@@ -828,12 +828,134 @@
       border-radius: 6px;
       z-index: 99999;
     }
+
+    #marker-info-box {
+      position: absolute;
+      top: 100px;
+      left: 100px;
+      display: flex;
+      align-items: center;
+      background: #dc2626;
+      border-radius: 8px;
+      padding: 8px;
+      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      cursor: move;
+      z-index: 10000001;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: opacity 0.3s ease;
+    }
+
+    #marker-info-box.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .marker-clock {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: white;
+      position: relative;
+      margin-right: 12px;
+    }
+
+    .marker-clock-hand {
+      position: absolute;
+      background: #333;
+      transform-origin: bottom center;
+      border-radius: 2px;
+    }
+
+    .marker-clock-hour {
+      width: 2px;
+      height: 14px;
+      top: 16px;
+      left: 29px;
+    }
+
+    .marker-clock-minute {
+      width: 1.5px;
+      height: 18px;
+      top: 12px;
+      left: 29.25px;
+    }
+
+    .marker-clock-second {
+      width: 1px;
+      height: 20px;
+      top: 10px;
+      left: 29.5px;
+      background: #dc2626;
+    }
+
+    .marker-clock-center {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #dc2626;
+      top: 27px;
+      left: 27px;
+    }
+
+    .marker-clock-numbers {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      font-size: 8px;
+      color: #333;
+      text-align: center;
+    }
+
+    .marker-clock-number {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    .marker-info-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .marker-location {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    .marker-date {
+      font-size: 11px;
+      opacity: 0.9;
+      margin-bottom: 2px;
+    }
+
+    .marker-time {
+      font-size: 14px;
+      font-weight: bold;
+    }
   </style>
   <link rel="shortcut icon" href="logo.ico"/>
 </head>
 <body>
   <div>
     <canvas id="can" style="position: absolute;">您的浏览器不支持canvas</canvas>
+    
+    <div id="marker-info-box">
+      <div class="marker-clock">
+        <div class="marker-clock-hour marker-clock-hand"></div>
+        <div class="marker-clock-minute marker-clock-hand"></div>
+        <div class="marker-clock-second marker-clock-hand"></div>
+        <div class="marker-clock-center"></div>
+      </div>
+      <div class="marker-info-content">
+        <div class="marker-location" id="marker-location">北京</div>
+        <div class="marker-date" id="marker-date">Jul. 14, 2026</div>
+        <div class="marker-time" id="marker-time">18:04:45</div>
+      </div>
+    </div>
     
     <div id="latlon"></div>
     
@@ -1409,6 +1531,95 @@
       lon: p_lon,
       lat: p_lat
     };
+
+    var markerInfoBox = document.getElementById("marker-info-box");
+    var markerDragging = false;
+    var markerDragOffset = { x: 0, y: 0 };
+    var markerUserPositioned = false;
+
+    function updateMarkerInfo() {
+      if (!canvas_lonlat || !canvas_lonlat[0] || !canvas_lonlat[1]) return;
+      
+      var lon = canvas_lonlat[0];
+      var lat = canvas_lonlat[1];
+      var tzName = tzlookup(lat, lon);
+      var localTime = moment.tz(time, tzName);
+      
+      var locationName = "未知地点";
+      try {
+        var timezoneName_utc = tzName.split('/')[1] || tzName;
+        locationName = timezoneName_utc.replace(/_/g, ' ');
+      } catch (e) {}
+      
+      document.getElementById("marker-location").textContent = locationName;
+      document.getElementById("marker-date").textContent = localTime.format("MMM. D, YYYY");
+      document.getElementById("marker-time").textContent = localTime.format("HH:mm:ss");
+      
+      var hours = localTime.hours();
+      var minutes = localTime.minutes();
+      var seconds = localTime.seconds();
+      
+      var hourDeg = (hours % 12) * 30 + minutes * 0.5;
+      var minuteDeg = minutes * 6;
+      var secondDeg = seconds * 6;
+      
+      document.querySelector(".marker-clock-hour").style.transform = "rotate(" + hourDeg + "deg)";
+      document.querySelector(".marker-clock-minute").style.transform = "rotate(" + minuteDeg + "deg)";
+      document.querySelector(".marker-clock-second").style.transform = "rotate(" + secondDeg + "deg)";
+    }
+
+    markerInfoBox.addEventListener("mousedown", function(e) {
+      markerDragging = true;
+      markerUserPositioned = true;
+      var rect = markerInfoBox.getBoundingClientRect();
+      markerDragOffset.x = e.clientX - rect.left;
+      markerDragOffset.y = e.clientY - rect.top;
+    });
+
+    document.addEventListener("mousemove", function(e) {
+      if (markerDragging) {
+        markerInfoBox.style.left = (e.clientX - markerDragOffset.x) + "px";
+        markerInfoBox.style.top = (e.clientY - markerDragOffset.y) + "px";
+      }
+    });
+
+    document.addEventListener("mouseup", function() {
+      markerDragging = false;
+    });
+
+    function updateMarkerPosition() {
+      if (!canvas_lonlat || !canvas_lonlat[0] || !canvas_lonlat[1]) return;
+      if (markerUserPositioned && !markerDragging) return;
+      
+      var lon = canvas_lonlat[0];
+      var lat = canvas_lonlat[1];
+      
+      var opacity = getPointOpacity(lon, lat);
+      if (opacity < 0.1) {
+        markerInfoBox.classList.add("hidden");
+        return;
+      }
+      markerInfoBox.classList.remove("hidden");
+      
+      var point;
+      if (getProjectionType() === 'prj2') {
+        var origClip = projection.clipAngle();
+        projection.clipAngle(180);
+        point = projection([lon, lat]);
+        projection.clipAngle(origClip);
+      } else {
+        point = projection([lon, lat]);
+      }
+      
+      if (point) {
+        markerInfoBox.style.left = (point[0] + 60) + "px";
+        markerInfoBox.style.top = (point[1] - 30) + "px";
+      }
+    }
+
+    var markerInterval = setInterval(function() {
+      updateMarkerInfo();
+    }, 1000);
 
     var menuCollapseBtn = document.getElementById("menu-collapse-btn");
     var menuContent = document.getElementById("menu-content");
@@ -2847,6 +3058,63 @@ function zoomedd(){
         context.fillStyle = "rgba(30, 30, 50, " + (0.5 * twOpacity) + ")";
         context.fill();
       }
+      
+      // 绘制当前地点标记
+      if (canvas_lonlat && canvas_lonlat[0] && canvas_lonlat[1]) {
+        var markerLon = canvas_lonlat[0];
+        var markerLat = canvas_lonlat[1];
+        var markerOpacity = getPointOpacity(markerLon, markerLat);
+        
+        if (markerOpacity > 0.05) {
+          var markerPoint;
+          if (getProjectionType() === 'prj2') {
+            var origClip3 = projection.clipAngle();
+            projection.clipAngle(180);
+            markerPoint = projection([markerLon, markerLat]);
+            projection.clipAngle(origClip3);
+          } else {
+            markerPoint = projection([markerLon, markerLat]);
+          }
+          
+          if (markerPoint) {
+            var mx = markerPoint[0];
+            var my = markerPoint[1];
+            
+            context.globalAlpha = markerOpacity;
+            
+            // 绘制连接线到信息框
+            var boxRect = markerInfoBox.getBoundingClientRect();
+            var boxX = boxRect.left;
+            var boxY = boxRect.top + boxRect.height / 2;
+            
+            context.beginPath();
+            context.moveTo(mx, my);
+            context.lineTo(boxX, boxY);
+            context.strokeStyle = "#dc2626";
+            context.lineWidth = 2;
+            context.stroke();
+            
+            // 绘制红色小圆点
+            context.fillStyle = "#dc2626";
+            context.beginPath();
+            context.arc(mx, my, 4, 0, 2 * Math.PI);
+            context.fill();
+            
+            // 绘制外圈
+            context.strokeStyle = "#dc2626";
+            context.lineWidth = 1;
+            context.beginPath();
+            context.arc(mx, my, 6, 0, 2 * Math.PI);
+            context.stroke();
+            
+            context.globalAlpha = 1;
+          }
+        }
+      }
+      
+      // 更新信息框位置和内容
+      updateMarkerPosition();
+      updateMarkerInfo();
       
       // 绘制多点对比标记
       if (window.multiPoints && window.multiPoints.length > 0) {
