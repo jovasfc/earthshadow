@@ -363,6 +363,39 @@
       min-width: 16px;
       text-align: center;
     }
+    .multi-city-select {
+      width: 150px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 3px;
+      color: #fff;
+      font-size: 11px;
+      padding: 3px 6px;
+      cursor: pointer;
+      outline: none;
+      pointer-events: auto;
+      user-select: text;
+      -webkit-user-select: text;
+      z-index: 10000002;
+      position: relative;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .multi-city-select option {
+      background: #1a2035;
+      color: #fff;
+      pointer-events: auto;
+      user-select: text;
+      padding: 2px 8px;
+    }
+    .multi-city-select optgroup {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.8);
+      font-weight: bold;
+      font-size: 12px;
+      padding: 4px 0 2px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
     .multi-coord-input {
       width: 56px;
       background: rgba(255,255,255,0.08);
@@ -829,7 +862,7 @@
       z-index: 99999;
     }
 
-    #marker-info-box {
+    .marker-info-box {
       position: absolute;
       top: 100px;
       left: 100px;
@@ -846,7 +879,7 @@
       transition: opacity 0.3s ease;
     }
 
-    #marker-info-box.hidden {
+    .marker-info-box.hidden {
       opacity: 0;
       pointer-events: none;
     }
@@ -899,6 +932,43 @@
       left: 27px;
     }
 
+    .marker-clock-ticks {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    .marker-clock-tick {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    .marker-clock-tick::before {
+      content: "";
+      position: absolute;
+      background: #333;
+      border-radius: 1px;
+    }
+
+    .marker-clock-tick.hour::before {
+      width: 1px;
+      height: 5px;
+      top: 0.5px;
+      left: 29.5px;
+    }
+
+    .marker-clock-tick.minute::before {
+      width: 0.6px;
+      height: 3.5px;
+      top: 0.5px;
+      left: 29.75px;
+    }
+
     .marker-clock-numbers {
       position: absolute;
       width: 100%;
@@ -943,8 +1013,70 @@
   <div>
     <canvas id="can" style="position: absolute;">您的浏览器不支持canvas</canvas>
     
-    <div id="marker-info-box">
+    <div id="marker-info-box" class="marker-info-box">
       <div class="marker-clock">
+        <div class="marker-clock-ticks">
+          <div class="marker-clock-tick hour" style="transform: rotate(0deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(6deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(12deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(18deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(24deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(30deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(36deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(42deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(48deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(54deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(60deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(66deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(72deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(78deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(84deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(90deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(96deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(102deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(108deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(114deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(120deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(126deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(132deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(138deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(144deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(150deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(156deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(162deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(168deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(174deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(180deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(186deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(192deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(198deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(204deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(210deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(216deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(222deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(228deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(234deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(240deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(246deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(252deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(258deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(264deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(270deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(276deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(282deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(288deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(294deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(300deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(306deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(312deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(318deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(324deg)"></div>
+          <div class="marker-clock-tick hour" style="transform: rotate(330deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(336deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(342deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(348deg)"></div>
+          <div class="marker-clock-tick minute" style="transform: rotate(354deg)"></div>
+        </div>
         <div class="marker-clock-hour marker-clock-hand"></div>
         <div class="marker-clock-minute marker-clock-hand"></div>
         <div class="marker-clock-second marker-clock-hand"></div>
@@ -1145,6 +1277,10 @@
         <span class="multi-label">📍 多点对比</span>
         <div class="anim-divider"></div>
         <button id="btn-add-point" class="multi-add-btn" onclick="addCurrentPoint()">+ 添加</button>
+        <span class="multi-label" style="font-size:11px;color:rgba(255,255,255,0.5)">或选择城市</span>
+        <select id="city-select" class="multi-city-select">
+          <option value="">选择城市...</option>
+        </select>
         <span class="multi-label" style="font-size:11px;color:rgba(255,255,255,0.5)">或输入</span>
         <input type="number" id="multi-input-lon" class="multi-coord-input" placeholder="经度" min="-180" max="180" step="0.1">
         <input type="number" id="multi-input-lat" class="multi-coord-input" placeholder="纬度" min="-90" max="90" step="0.1">
@@ -1168,6 +1304,7 @@
                 <th style="width:30px"></th>
                 <th>地点</th>
                 <th>纬度, 经度</th>
+                <th>当前时刻</th>
                 <th>日出</th>
                 <th>正午</th>
                 <th>日落</th>
@@ -1523,6 +1660,7 @@
     can.height=innerHeight;
     var time;
     var projection;
+    window.canvas = can;
     
     var p_lon = 116.4;
     var p_lat = 39.9;
@@ -1532,10 +1670,21 @@
       lat: p_lat
     };
 
+    function generateClockTicks() {
+      var html = '<div class="marker-clock-ticks">';
+      for (var i = 0; i < 60; i++) {
+        var isHour = i % 5 === 0;
+        html += '<div class="marker-clock-tick ' + (isHour ? 'hour' : 'minute') + '" style="transform: rotate(' + (i * 6) + 'deg)"></div>';
+      }
+      html += '</div>';
+      return html;
+    }
+
     var markerInfoBox = document.getElementById("marker-info-box");
     var markerDragging = false;
     var markerDragOffset = { x: 0, y: 0 };
-    var markerUserPositioned = false;
+    var markerBoxLon = null;
+    var markerBoxLat = null;
 
     function updateMarkerInfo() {
       if (!canvas_lonlat || !canvas_lonlat[0] || !canvas_lonlat[1]) return;
@@ -1570,7 +1719,6 @@
 
     markerInfoBox.addEventListener("mousedown", function(e) {
       markerDragging = true;
-      markerUserPositioned = true;
       var rect = markerInfoBox.getBoundingClientRect();
       markerDragOffset.x = e.clientX - rect.left;
       markerDragOffset.y = e.clientY - rect.top;
@@ -1578,8 +1726,22 @@
 
     document.addEventListener("mousemove", function(e) {
       if (markerDragging) {
-        markerInfoBox.style.left = (e.clientX - markerDragOffset.x) + "px";
-        markerInfoBox.style.top = (e.clientY - markerDragOffset.y) + "px";
+        var proj = window.projection;
+        var can = window.canvas || canvas.node();
+        if (proj && can && proj.invert) {
+          var canvasRect = can.getBoundingClientRect();
+          var canvasX = e.clientX - markerDragOffset.x - canvasRect.left - 60;
+          var canvasY = e.clientY - markerDragOffset.y - canvasRect.top + 30;
+          
+          var lonlat = proj.invert([canvasX, canvasY]);
+          if (lonlat) {
+            markerBoxLon = lonlat[0];
+            markerBoxLat = lonlat[1];
+          }
+        }
+        if (typeof window.render === 'function') {
+          window.render();
+        }
       }
     });
 
@@ -1589,13 +1751,11 @@
 
     function updateMarkerPosition() {
       if (!canvas_lonlat || !canvas_lonlat[0] || !canvas_lonlat[1]) return;
-      if (markerUserPositioned && !markerDragging) return;
       
-      var lon = canvas_lonlat[0];
-      var lat = canvas_lonlat[1];
+      var lon = markerBoxLon !== null ? markerBoxLon : canvas_lonlat[0];
+      var lat = markerBoxLat !== null ? markerBoxLat : canvas_lonlat[1];
       
-      var opacity = getPointOpacity(lon, lat);
-      if (opacity < 0.1) {
+      if (isPointOnBack(lon, lat)) {
         markerInfoBox.classList.add("hidden");
         return;
       }
@@ -1619,7 +1779,243 @@
 
     var markerInterval = setInterval(function() {
       updateMarkerInfo();
+      updateAllMultiPointBoxes();
     }, 1000);
+
+    var draggingBox = null;
+    var dragOffset = { x: 0, y: 0 };
+    var draggingPointId = null;
+
+    document.addEventListener("mousemove", function(e) {
+      if (draggingBox && draggingPointId !== null) {
+        var entry = multiPointBoxes[draggingPointId];
+        if (entry) {
+          var proj = window.projection;
+          var can = window.canvas;
+          if (proj && can && proj.invert) {
+            var canvasRect = can.getBoundingClientRect();
+            var canvasX = e.clientX - dragOffset.x - canvasRect.left - 15;
+            var canvasY = e.clientY - dragOffset.y - canvasRect.top + 20;
+            
+            var lonlat = proj.invert([canvasX, canvasY]);
+            if (lonlat) {
+              entry.boxLon = lonlat[0];
+              entry.boxLat = lonlat[1];
+            }
+          }
+        }
+        if (typeof window.render === 'function') {
+          window.render();
+        }
+      }
+    });
+
+    document.addEventListener("mouseup", function() {
+      draggingBox = null;
+      draggingPointId = null;
+    });
+
+    function createMarkerInfoBox(point) {
+      var box = document.createElement("div");
+      box.className = "marker-info-box";
+      box.id = "marker-info-box-" + point.id;
+      box.style.background = point.color;
+      
+      var latSym = point.lat >= 0 ? "N" : "S";
+      var lonSym = point.lon >= 0 ? "E" : "W";
+      var coordStr = Math.abs(point.lat).toFixed(1) + "°" + latSym + ", " + Math.abs(point.lon).toFixed(1) + "°" + lonSym;
+      
+      box.innerHTML = `
+        <div class="marker-clock">
+          ${generateClockTicks()}
+          <div class="marker-clock-hour marker-clock-hand"></div>
+          <div class="marker-clock-minute marker-clock-hand"></div>
+          <div class="marker-clock-second marker-clock-hand"></div>
+          <div class="marker-clock-center"></div>
+        </div>
+        <div class="marker-info-content">
+          <div class="marker-location" data-id="${point.id}">${point.label}</div>
+          <div class="marker-date" id="marker-date-${point.id}">--</div>
+          <div class="marker-coord" id="marker-coord-${point.id}">${coordStr}</div>
+          <div class="marker-time" id="marker-time-${point.id}">--:--:--</div>
+        </div>
+      `;
+      
+      document.body.appendChild(box);
+      
+      box.addEventListener("mousedown", function(e) {
+        draggingBox = box;
+        draggingPointId = point.id;
+        var rect = box.getBoundingClientRect();
+        dragOffset.x = e.clientX - rect.left;
+        dragOffset.y = e.clientY - rect.top;
+      });
+      
+      box.querySelector(".marker-location").addEventListener("dblclick", function(e) {
+        e.stopPropagation();
+        var span = this;
+        var id = parseInt(span.dataset.id);
+        var oldName = span.textContent;
+        
+        var input = document.createElement("input");
+        input.type = "text";
+        input.className = "multi-name-edit";
+        input.value = oldName;
+        input.style.width = Math.max(60, oldName.length * 8) + "px";
+        input.style.color = "#000";
+        input.style.background = "#fff";
+        input.style.border = "1px solid #ccc";
+        input.style.borderRadius = "3px";
+        input.style.padding = "2px 4px";
+        
+        span.textContent = "";
+        span.appendChild(input);
+        input.focus();
+        input.select();
+        
+        function finishEdit() {
+          var newName = input.value.trim();
+          if (newName && newName !== oldName) {
+            for (var i = 0; i < multiPoints.length; i++) {
+              if (multiPoints[i].id === id) {
+                multiPoints[i].label = newName;
+                break;
+              }
+            }
+            span.textContent = newName;
+            updateMultiPanel();
+            if (typeof window.render === 'function') window.render();
+          } else {
+            span.textContent = oldName;
+          }
+        }
+        
+        input.addEventListener("blur", finishEdit);
+        input.addEventListener("keydown", function(e) {
+          if (e.key === "Enter") finishEdit();
+          if (e.key === "Escape") {
+            span.textContent = oldName;
+          }
+        });
+      });
+      
+      multiPointBoxes[point.id] = { 
+        element: box, 
+        boxLon: point.lon, 
+        boxLat: point.lat 
+      };
+      
+      updateMultiPointBoxPosition(point);
+      
+      return box;
+    }
+
+    function removeMarkerInfoBox(id) {
+      var entry = multiPointBoxes[id];
+      if (entry && entry.element) {
+        entry.element.remove();
+        delete multiPointBoxes[id];
+      }
+    }
+
+    function updateMultiPointBoxPosition(point) {
+      var entry = multiPointBoxes[point.id];
+      if (!entry || !entry.element) return;
+      
+      var box = entry.element;
+      
+      var boxLon = entry.boxLon || point.lon;
+      var boxLat = entry.boxLat || point.lat;
+      
+      if (isPointOnBack(boxLon, boxLat)) {
+        box.classList.add("hidden");
+        return;
+      }
+      box.classList.remove("hidden");
+      
+      var proj = window.projection;
+      var can = window.canvas;
+      
+      if (!proj || !can) return;
+      
+      var mpPoint;
+      if (typeof getProjectionType === 'function' && getProjectionType() === 'prj2') {
+        var origClip = proj.clipAngle();
+        proj.clipAngle(180);
+        mpPoint = proj([boxLon, boxLat]);
+        proj.clipAngle(origClip);
+      } else {
+        mpPoint = proj([boxLon, boxLat]);
+      }
+      
+      if (mpPoint) {
+        var boxX = can.offsetLeft + mpPoint[0] + 15;
+        var boxY = can.offsetTop + mpPoint[1] - 20;
+        
+        box.style.left = boxX + "px";
+        box.style.top = boxY + "px";
+      }
+    }
+
+    function isPointOnBack(lon, lat) {
+      if (getProjectionType() !== 'prj2') return false;
+      
+      var centerLon = parseFloat(document.getElementById("center-lon").value) || 0;
+      var centerLat = parseFloat(document.getElementById("center-lat").value) || 0;
+      
+      var dLon = (lon - centerLon) * Math.PI / 180;
+      var rLat = lat * Math.PI / 180;
+      var rCenterLat = centerLat * Math.PI / 180;
+      
+      var cosAngle = Math.sin(rLat) * Math.sin(rCenterLat) + 
+                     Math.cos(rLat) * Math.cos(rCenterLat) * Math.cos(dLon);
+      
+      return cosAngle < 0;
+    }
+
+    function updateMultiPointBox(point) {
+      var entry = multiPointBoxes[point.id];
+      if (!entry || !entry.element) return;
+      
+      var box = entry.element;
+      
+      if (box.classList.contains("hidden")) return;
+      
+      var tzName = tzlookup(point.lat, point.lon);
+      var localTime = moment.tz(time, tzName);
+      
+      box.querySelector(".marker-location").textContent = point.label;
+      document.getElementById("marker-date-" + point.id).textContent = localTime.format("MMM. D, YYYY");
+      document.getElementById("marker-time-" + point.id).textContent = localTime.format("HH:mm:ss");
+      
+      var hours = localTime.hours();
+      var minutes = localTime.minutes();
+      var seconds = localTime.seconds();
+      
+      var hourDeg = (hours % 12) * 30 + minutes * 0.5;
+      var minuteDeg = minutes * 6;
+      var secondDeg = seconds * 6;
+      
+      var clock = box.querySelector(".marker-clock");
+      clock.querySelector(".marker-clock-hour").style.transform = "rotate(" + hourDeg + "deg)";
+      clock.querySelector(".marker-clock-minute").style.transform = "rotate(" + minuteDeg + "deg)";
+      clock.querySelector(".marker-clock-second").style.transform = "rotate(" + secondDeg + "deg)";
+    }
+
+    function updateAllMultiPointBoxes() {
+      for (var id in multiPointBoxes) {
+        var point = multiPoints.find(function(p) { return p.id == id; });
+        if (point) {
+          updateMultiPointBox(point);
+        }
+      }
+    }
+
+    window.createMarkerInfoBox = createMarkerInfoBox;
+    window.updateMultiPointBoxPosition = updateMultiPointBoxPosition;
+    window.updateMultiPointBox = updateMultiPointBox;
+    window.removeMarkerInfoBox = removeMarkerInfoBox;
+    window.generateClockTicks = generateClockTicks;
 
     var menuCollapseBtn = document.getElementById("menu-collapse-btn");
     var menuContent = document.getElementById("menu-content");
@@ -2284,6 +2680,8 @@
             .precision(0.1);
       }
     }
+
+    window.projection = projection;
 
     var centerLon = parseFloat(document.getElementById("center-lon").value) || 0;
     var centerLat = parseFloat(document.getElementById("center-lat").value) || 0;
@@ -3083,16 +3481,18 @@ function zoomedd(){
             context.globalAlpha = markerOpacity;
             
             // 绘制连接线到信息框
-            var boxRect = markerInfoBox.getBoundingClientRect();
-            var boxX = boxRect.left;
-            var boxY = boxRect.top + boxRect.height / 2;
-            
-            context.beginPath();
-            context.moveTo(mx, my);
-            context.lineTo(boxX, boxY);
-            context.strokeStyle = "#dc2626";
-            context.lineWidth = 2;
-            context.stroke();
+            if (!markerInfoBox.classList.contains("hidden")) {
+              var boxRect = markerInfoBox.getBoundingClientRect();
+              var boxX = boxRect.left;
+              var boxY = boxRect.top + boxRect.height / 2;
+              
+              context.beginPath();
+              context.moveTo(mx, my);
+              context.lineTo(boxX, boxY);
+              context.strokeStyle = "#dc2626";
+              context.lineWidth = 2;
+              context.stroke();
+            }
             
             // 绘制红色小圆点
             context.fillStyle = "#dc2626";
@@ -3138,36 +3538,45 @@ function zoomedd(){
             
             context.globalAlpha = mpOpacity;
             
-            // 实心圆点
-            context.fillStyle = mp.color;
+            if (typeof window.updateMultiPointBoxPosition === 'function') {
+              window.updateMultiPointBoxPosition(mp);
+            }
+            if (typeof window.updateMultiPointBox === 'function') {
+              window.updateMultiPointBox(mp);
+            }
+            
+            var entry = window.multiPointBoxes && window.multiPointBoxes[mp.id];
+            if (entry && entry.element) {
+              var box = entry.element;
+              if (box.classList.contains("hidden")) continue;
+              
+              var boxRect = box.getBoundingClientRect();
+              var can = window.canvas || canvas.node();
+              var canvasRect = can.getBoundingClientRect();
+              var boxX = boxRect.left - canvasRect.left;
+              var boxY = boxRect.top - canvasRect.top;
+              
+              // 绘制连接线
+              context.beginPath();
+              context.moveTo(mx, my);
+              context.lineTo(boxX, boxY + boxRect.height / 2);
+              context.strokeStyle = mp.color;
+              context.lineWidth = 1.5;
+              context.stroke();
+            }
+            
+            // 红色小圆圈标记
+            context.fillStyle = "#dc2626";
             context.beginPath();
-            context.arc(mx, my, 5, 0, 2 * Math.PI);
+            context.arc(mx, my, 4, 0, 2 * Math.PI);
             context.fill();
             
-            // 外圈光晕
+            // 外圈
             context.beginPath();
-            context.arc(mx, my, 8, 0, 2 * Math.PI);
-            context.strokeStyle = mp.color;
-            context.lineWidth = 1.5;
-            context.globalAlpha = mpOpacity * 0.4;
+            context.arc(mx, my, 6, 0, 2 * Math.PI);
+            context.strokeStyle = "#fff";
+            context.lineWidth = 1;
             context.stroke();
-            
-            // 标签 — 名称(经纬度)
-            context.globalAlpha = mpOpacity;
-            var latSym = mp.lat >= 0 ? "N" : "S";
-            var lonSym = mp.lon >= 0 ? "E" : "W";
-            var mapLabel = mp.label + " (" + Math.abs(mp.lat).toFixed(1) + "°" + latSym + ", " + Math.abs(mp.lon).toFixed(1) + "°" + lonSym + ")";
-            context.fillStyle = "#fff";
-            context.font = "bold 11px sans-serif";
-            context.textAlign = "left";
-            var labelX = mx + 10;
-            var labelY = my + 4;
-            // 标签背景
-            var txtW = context.measureText(mapLabel).width;
-            context.fillStyle = "rgba(0,0,0,0.5)";
-            context.fillRect(labelX - 2, labelY - 9, txtW + 4, 14);
-            context.fillStyle = mp.color;
-            context.fillText(mapLabel, labelX, labelY);
             
             context.globalAlpha = 1;
           }
@@ -3723,7 +4132,10 @@ function getPointOpacity(lon, lat) {
 // ====== 多点对比功能 ======
 const POINT_COLORS = ['#ff6b6b', '#51cf66', '#4dabf7', '#fcc419', '#cc5de8', '#ff922b', '#20c997', '#e06666'];
 var multiPoints = [];
+window.multiPoints = multiPoints;
 var pointIdCounter = 0;
+var multiPointBoxes = {};
+window.multiPointBoxes = multiPointBoxes;
 var tzFormat = "UTC"; // "UTC" 或 "CN"
 
 function numToChinese(n) {
@@ -3741,6 +4153,235 @@ function toggleTzFormat() {
   // 更新赤道时区标签
   if (typeof window.render === 'function') window.render();
 }
+
+var WORLD_CITIES = [
+  { name: "北京", lon: 116.4074, lat: 39.9042, category: "中国" },
+  { name: "上海", lon: 121.4737, lat: 31.2304, category: "中国" },
+  { name: "广州", lon: 113.2644, lat: 23.1291, category: "中国" },
+  { name: "深圳", lon: 114.0579, lat: 22.5431, category: "中国" },
+  { name: "香港", lon: 114.1747, lat: 22.3193, category: "中国" },
+  { name: "澳门", lon: 113.5439, lat: 22.1987, category: "中国" },
+  { name: "台北", lon: 121.5316, lat: 25.0478, category: "中国" },
+  { name: "哈尔滨", lon: 126.6326, lat: 45.8038, category: "中国" },
+  { name: "沈阳", lon: 123.4328, lat: 41.8057, category: "中国" },
+  { name: "大连", lon: 121.6147, lat: 38.9140, category: "中国" },
+  { name: "天津", lon: 117.2008, lat: 39.0842, category: "中国" },
+  { name: "济南", lon: 117.0009, lat: 36.6512, category: "中国" },
+  { name: "青岛", lon: 120.3826, lat: 36.0671, category: "中国" },
+  { name: "南京", lon: 118.7969, lat: 32.0603, category: "中国" },
+  { name: "苏州", lon: 120.6196, lat: 31.2990, category: "中国" },
+  { name: "杭州", lon: 120.1551, lat: 30.2741, category: "中国" },
+  { name: "宁波", lon: 121.5440, lat: 29.8683, category: "中国" },
+  { name: "厦门", lon: 118.0894, lat: 24.4798, category: "中国" },
+  { name: "福州", lon: 119.2965, lat: 26.0745, category: "中国" },
+  { name: "武汉", lon: 114.3055, lat: 30.5928, category: "中国" },
+  { name: "长沙", lon: 112.9388, lat: 28.2280, category: "中国" },
+  { name: "郑州", lon: 113.6253, lat: 34.7466, category: "中国" },
+  { name: "合肥", lon: 117.2272, lat: 31.8206, category: "中国" },
+  { name: "南昌", lon: 115.8594, lat: 28.6820, category: "中国" },
+  { name: "成都", lon: 104.0668, lat: 30.5728, category: "中国" },
+  { name: "重庆", lon: 106.5516, lat: 29.5630, category: "中国" },
+  { name: "昆明", lon: 102.7122, lat: 24.8815, category: "中国" },
+  { name: "贵阳", lon: 106.6302, lat: 26.6479, category: "中国" },
+  { name: "南宁", lon: 108.3737, lat: 22.8170, category: "中国" },
+  { name: "西安", lon: 108.9480, lat: 34.2618, category: "中国" },
+  { name: "兰州", lon: 103.8343, lat: 36.0611, category: "中国" },
+  { name: "西宁", lon: 101.7782, lat: 36.6171, category: "中国" },
+  { name: "银川", lon: 106.2324, lat: 38.4872, category: "中国" },
+  { name: "乌鲁木齐", lon: 87.6169, lat: 43.8256, category: "中国" },
+  { name: "呼和浩特", lon: 111.6515, lat: 40.8425, category: "中国" },
+  { name: "拉萨", lon: 91.1322, lat: 29.6545, category: "中国" },
+  { name: "东京", lon: 139.6917, lat: 35.6895, category: "亚洲" },
+  { name: "大阪", lon: 135.5023, lat: 34.6937, category: "亚洲" },
+  { name: "京都", lon: 135.7680, lat: 34.9837, category: "亚洲" },
+  { name: "首尔", lon: 126.9780, lat: 37.5665, category: "亚洲" },
+  { name: "釜山", lon: 129.0555, lat: 35.1055, category: "亚洲" },
+  { name: "新加坡", lon: 103.8198, lat: 1.3521, category: "亚洲" },
+  { name: "吉隆坡", lon: 101.6869, lat: 3.1390, category: "亚洲" },
+  { name: "曼谷", lon: 100.5018, lat: 13.7563, category: "亚洲" },
+  { name: "雅加达", lon: 106.8650, lat: -6.1751, category: "亚洲" },
+  { name: "马尼拉", lon: 120.9842, lat: 14.5995, category: "亚洲" },
+  { name: "河内", lon: 105.8342, lat: 21.0278, category: "亚洲" },
+  { name: "胡志明市", lon: 106.6297, lat: 10.7626, category: "亚洲" },
+  { name: "金边", lon: 104.9160, lat: 11.5624, category: "亚洲" },
+  { name: "仰光", lon: 96.1997, lat: 16.8000, category: "亚洲" },
+  { name: "迪拜", lon: 55.2708, lat: 25.2048, category: "亚洲" },
+  { name: "阿布扎比", lon: 54.3662, lat: 24.4539, category: "亚洲" },
+  { name: "多哈", lon: 51.5310, lat: 25.2862, category: "亚洲" },
+  { name: "利雅得", lon: 46.7219, lat: 24.7136, category: "亚洲" },
+  { name: "科威特城", lon: 47.9240, lat: 29.3759, category: "亚洲" },
+  { name: "安曼", lon: 35.9375, lat: 31.9516, category: "亚洲" },
+  { name: "贝鲁特", lon: 35.5018, lat: 33.8938, category: "亚洲" },
+  { name: "大马士革", lon: 36.2304, lat: 33.5138, category: "亚洲" },
+  { name: "巴格达", lon: 44.3661, lat: 33.3406, category: "亚洲" },
+  { name: "孟买", lon: 72.8777, lat: 19.0760, category: "亚洲" },
+  { name: "新德里", lon: 77.2090, lat: 28.6139, category: "亚洲" },
+  { name: "达卡", lon: 90.4125, lat: 23.8103, category: "亚洲" },
+  { name: "伊斯兰堡", lon: 73.0479, lat: 33.6844, category: "亚洲" },
+  { name: "卡拉奇", lon: 67.0099, lat: 24.8607, category: "亚洲" },
+  { name: "德黑兰", lon: 51.3890, lat: 35.6892, category: "亚洲" },
+  { name: "喀布尔", lon: 69.1761, lat: 34.5228, category: "亚洲" },
+  { name: "加德满都", lon: 85.3162, lat: 27.7172, category: "亚洲" },
+  { name: "廷布", lon: 89.6412, lat: 27.4698, category: "亚洲" },
+  { name: "悉尼", lon: 151.2093, lat: -33.8688, category: "大洋洲" },
+  { name: "墨尔本", lon: 144.9631, lat: -37.8136, category: "大洋洲" },
+  { name: "布里斯班", lon: 153.0251, lat: -27.4698, category: "大洋洲" },
+  { name: "珀斯", lon: 115.8614, lat: -31.9505, category: "大洋洲" },
+  { name: "奥克兰", lon: 174.7633, lat: -36.8485, category: "大洋洲" },
+  { name: "惠灵顿", lon: 174.7633, lat: -41.2865, category: "大洋洲" },
+  { name: "伦敦", lon: -0.1276, lat: 51.5074, category: "欧洲" },
+  { name: "巴黎", lon: 2.3522, lat: 48.8566, category: "欧洲" },
+  { name: "柏林", lon: 13.4050, lat: 52.5200, category: "欧洲" },
+  { name: "罗马", lon: 12.4964, lat: 41.9028, category: "欧洲" },
+  { name: "马德里", lon: -3.7038, lat: 40.4168, category: "欧洲" },
+  { name: "阿姆斯特丹", lon: 4.8952, lat: 52.3676, category: "欧洲" },
+  { name: "维也纳", lon: 16.3738, lat: 48.2082, category: "欧洲" },
+  { name: "布拉格", lon: 14.4378, lat: 50.0755, category: "欧洲" },
+  { name: "华沙", lon: 21.0122, lat: 52.2297, category: "欧洲" },
+  { name: "布达佩斯", lon: 19.0402, lat: 47.4979, category: "欧洲" },
+  { name: "哥本哈根", lon: 12.5683, lat: 55.6761, category: "欧洲" },
+  { name: "斯德哥尔摩", lon: 18.0686, lat: 59.3293, category: "欧洲" },
+  { name: "奥斯陆", lon: 10.7461, lat: 59.9139, category: "欧洲" },
+  { name: "赫尔辛基", lon: 24.9375, lat: 60.1699, category: "欧洲" },
+  { name: "里斯本", lon: -9.1393, lat: 38.7223, category: "欧洲" },
+  { name: "雅典", lon: 23.7275, lat: 37.9838, category: "欧洲" },
+  { name: "伊斯坦布尔", lon: 28.9784, lat: 41.0082, category: "欧洲" },
+  { name: "莫斯科", lon: 37.6173, lat: 55.7558, category: "欧洲" },
+  { name: "纽约", lon: -74.0060, lat: 40.7128, category: "美洲" },
+  { name: "洛杉矶", lon: -118.2437, lat: 34.0522, category: "美洲" },
+  { name: "芝加哥", lon: -87.6298, lat: 41.8781, category: "美洲" },
+  { name: "多伦多", lon: -79.3832, lat: 43.6532, category: "美洲" },
+  { name: "温哥华", lon: -123.1207, lat: 49.2827, category: "美洲" },
+  { name: "旧金山", lon: -122.4194, lat: 37.7749, category: "美洲" },
+  { name: "西雅图", lon: -122.3321, lat: 47.6062, category: "美洲" },
+  { name: "波士顿", lon: -71.0589, lat: 42.3601, category: "美洲" },
+  { name: "费城", lon: -75.1652, lat: 39.9526, category: "美洲" },
+  { name: "迈阿密", lon: -80.1918, lat: 25.7617, category: "美洲" },
+  { name: "休斯顿", lon: -95.3698, lat: 29.7604, category: "美洲" },
+  { name: "达拉斯", lon: -96.7970, lat: 32.7767, category: "美洲" },
+  { name: "亚特兰大", lon: -84.3880, lat: 33.7489, category: "美洲" },
+  { name: "丹佛", lon: -104.9903, lat: 39.7392, category: "美洲" },
+  { name: "凤凰城", lon: -112.0740, lat: 33.4484, category: "美洲" },
+  { name: "拉斯维加斯", lon: -115.1398, lat: 36.1699, category: "美洲" },
+  { name: "底特律", lon: -83.0458, lat: 42.3314, category: "美洲" },
+  { name: "渥太华", lon: -75.6981, lat: 45.4215, category: "美洲" },
+  { name: "蒙特利尔", lon: -73.5673, lat: 45.5017, category: "美洲" },
+  { name: "卡尔加里", lon: -114.0620, lat: 51.0447, category: "美洲" },
+  { name: "埃德蒙顿", lon: -113.4909, lat: 53.5444, category: "美洲" },
+  { name: "圣保罗", lon: -46.6333, lat: -23.5505, category: "美洲" },
+  { name: "里约热内卢", lon: -43.1729, lat: -22.9068, category: "美洲" },
+  { name: "布宜诺斯艾利斯", lon: -58.3816, lat: -34.6037, category: "美洲" },
+  { name: "圣地亚哥", lon: -70.6693, lat: -33.4489, category: "美洲" },
+  { name: "利马", lon: -77.0428, lat: -12.0464, category: "美洲" },
+  { name: "墨西哥城", lon: -99.1332, lat: 19.4326, category: "美洲" },
+  { name: "波哥大", lon: -74.0721, lat: 4.7110, category: "美洲" },
+  { name: "加拉加斯", lon: -66.9036, lat: 10.4806, category: "美洲" },
+  { name: "开罗", lon: 31.2357, lat: 30.0444, category: "非洲" },
+  { name: "约翰内斯堡", lon: 28.0473, lat: -26.2041, category: "非洲" },
+  { name: "开普敦", lon: 18.4241, lat: -33.9249, category: "非洲" },
+  { name: "内罗毕", lon: 36.8172, lat: -1.2921, category: "非洲" },
+  { name: "拉各斯", lon: 3.3792, lat: 6.5244, category: "非洲" }
+];
+
+function initCitySelect() {
+  var select = document.getElementById("city-select");
+  if (!select) return;
+  
+  if (select.options.length > 1) return;
+  
+  select.innerHTML = '<option value="">选择城市...</option>';
+  
+  var categories = ["中国", "亚洲", "欧洲", "美洲", "非洲", "大洋洲"];
+  var groupedCities = {};
+  
+  categories.forEach(function(cat) {
+    groupedCities[cat] = [];
+  });
+  
+  WORLD_CITIES.forEach(function(city) {
+    if (groupedCities[city.category]) {
+      groupedCities[city.category].push(city);
+    }
+  });
+  
+  categories.forEach(function(cat) {
+    var cities = groupedCities[cat];
+    if (cities.length === 0) return;
+    
+    cities.sort(function(a, b) {
+      return a.name.localeCompare(b.name, 'zh-CN');
+    });
+    
+    var optgroup = document.createElement("optgroup");
+    optgroup.label = cat + " (" + cities.length + ")";
+    
+    cities.forEach(function(city) {
+      var option = document.createElement("option");
+      option.value = city.lon + "," + city.lat;
+      option.textContent = city.name + " (" + city.lat.toFixed(2) + "°, " + city.lon.toFixed(2) + "°)";
+      optgroup.appendChild(option);
+    });
+    
+    select.appendChild(optgroup);
+  });
+  
+  select.addEventListener("change", selectCity);
+  
+  var lonInput = document.getElementById("multi-input-lon");
+  var latInput = document.getElementById("multi-input-lat");
+  
+  lonInput.addEventListener("input", function() {
+    resetCitySelect();
+  });
+  
+  latInput.addEventListener("input", function() {
+    resetCitySelect();
+  });
+}
+
+var currentCityName = "";
+var ignoreInputReset = false;
+
+function resetCitySelect() {
+  if (ignoreInputReset) return;
+  var select = document.getElementById("city-select");
+  if (select && select.value) {
+    select.value = "";
+    currentCityName = "";
+  }
+}
+
+function selectCity() {
+  var select = document.getElementById("city-select");
+  if (!select || !select.value) {
+    currentCityName = "";
+    return;
+  }
+  
+  var parts = select.value.split(",");
+  var lon = parseFloat(parts[0]);
+  var lat = parseFloat(parts[1]);
+  
+  var selectedOption = select.options[select.selectedIndex];
+  currentCityName = selectedOption.textContent.split(" ")[0];
+  
+  ignoreInputReset = true;
+  document.getElementById("multi-input-lon").value = lon.toFixed(4);
+  document.getElementById("multi-input-lat").value = lat.toFixed(4);
+  setTimeout(function() { ignoreInputReset = false; }, 50);
+}
+
+function initCitySelectDelayed() {
+  var select = document.getElementById("city-select");
+  if (select && select.options.length <= 1) {
+    initCitySelect();
+  } else {
+    setTimeout(initCitySelectDelayed, 50);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", initCitySelectDelayed);
+window.addEventListener("load", initCitySelectDelayed);
 
 let multiPanelOpen = true;
 
@@ -3772,7 +4413,11 @@ function addCurrentPoint() {
   }
   var id = pointIdCounter++;
   var color = POINT_COLORS[multiPoints.length % POINT_COLORS.length];
-  multiPoints.push({ id: id, lon: lon, lat: lat, color: color, label: "点" + (multiPoints.length + 1) });
+  var point = { id: id, lon: lon, lat: lat, color: color, label: "点" + (multiPoints.length + 1) };
+  multiPoints.push(point);
+  if (typeof createMarkerInfoBox === 'function') {
+    createMarkerInfoBox(point);
+  }
   updateMultiPanel();
   if (typeof window.render === 'function') window.render();
 }
@@ -3799,7 +4444,13 @@ function addCoordPoint() {
   }
   var id = pointIdCounter++;
   var color = POINT_COLORS[multiPoints.length % POINT_COLORS.length];
-  multiPoints.push({ id: id, lon: lon, lat: lat, color: color, label: "点" + (multiPoints.length + 1) });
+  var label = currentCityName || "点" + (multiPoints.length + 1);
+  var point = { id: id, lon: lon, lat: lat, color: color, label: label };
+  multiPoints.push(point);
+  currentCityName = "";
+  if (typeof createMarkerInfoBox === 'function') {
+    createMarkerInfoBox(point);
+  }
   // 同时更新 canvas_lonlat，方便继续添加邻近点
   canvas_lonlat = [lon, lat];
   updateMultiPanel();
@@ -3810,9 +4461,11 @@ function addCoordPoint() {
 }
 
 function removePoint(id) {
+  if (typeof removeMarkerInfoBox === 'function') {
+    removeMarkerInfoBox(id);
+  }
   multiPoints = multiPoints.filter(function(p) { return p.id !== id; });
-  // 重新编号标签
-  multiPoints.forEach(function(p, idx) { p.label = "点" + (idx + 1); });
+  window.multiPoints = multiPoints;
   updateMultiPanel();
   if (typeof window.render === 'function') window.render();
 }
@@ -3820,7 +4473,13 @@ function removePoint(id) {
 function clearAllPoints() {
   if (multiPoints.length === 0) return;
   if (!confirm("确定清空所有地点？")) return;
+  for (var id in multiPointBoxes) {
+    if (typeof removeMarkerInfoBox === 'function') {
+      removeMarkerInfoBox(id);
+    }
+  }
   multiPoints = [];
+  window.multiPoints = multiPoints;
   pointIdCounter = 0;
   updateMultiPanel();
   if (typeof window.render === 'function') window.render();
@@ -3896,6 +4555,7 @@ function updateMultiPanel() {
     // 获取日出/正午/日落（SunCalc 内部用地理坐标，getTimes(lat, lng)）
     var times = SunCalc.getTimes(time, p.lat, p.lon);
     
+    var localTimeStr = formatLocalTime(time, tz);
     var sunriseStr = formatLocalTime(times.sunrise, tz);
     var noonStr = formatLocalTime(times.solarNoon, tz);
     var sunsetStr = formatLocalTime(times.sunset, tz);
@@ -3903,10 +4563,22 @@ function updateMultiPanel() {
     var lonStr = p.lon >= 0 ? p.lon.toFixed(1) + "°E" : (-p.lon).toFixed(1) + "°W";
     var latStr = p.lat >= 0 ? p.lat.toFixed(1) + "°N" : (-p.lat).toFixed(1) + "°S";
     
+    var timeOfDay = "night";
+    if (times.sunrise && times.sunset) {
+      var sunriseMs = times.sunrise.getTime();
+      var sunsetMs = times.sunset.getTime();
+      var timeMs = time.getTime();
+      if (timeMs >= sunriseMs && timeMs <= sunsetMs) {
+        timeOfDay = "day";
+      }
+    }
+    var currentTimeColor = timeOfDay === "day" ? "#20c997" : "#69db7c";
+    
     html += "<tr>" +
       "<td><span class=\"multi-dot\" style=\"background:" + p.color + "\"></span></td>" +
       "<td><span class=\"multi-label-name\" data-id=\"" + p.id + "\" title=\"双击编辑名称\">" + p.label + "</span></td>" +
       "<td style=\"font-size:11px;color:rgba(255,255,255,0.6)\">" + latStr + ", " + lonStr + "</td>" +
+      "<td style=\"color:" + currentTimeColor + ";font-weight:bold\">" + localTimeStr + "</td>" +
       "<td style=\"color:#ffd43b\">" + sunriseStr + "</td>" +
       "<td style=\"color:#ff922b\">" + noonStr + "</td>" +
       "<td style=\"color:#4dabf7\">" + sunsetStr + "</td>" +
@@ -3963,7 +4635,7 @@ document.getElementById("multi-panel-body").addEventListener("dblclick", functio
   var tb = document.getElementById("multi-toolbar");
   var dragging = false, sx, sy, ox, oy;
   tb.addEventListener("mousedown", function(e) {
-    if (e.target.tagName === 'BUTTON' || e.target.closest('.multi-toolbar-inner') === null) return;
+    if (e.target.tagName === 'BUTTON' || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' || e.target.closest('.multi-toolbar-inner') === null) return;
     dragging = true;
     var r = tb.getBoundingClientRect();
     ox = r.left; oy = r.top;
