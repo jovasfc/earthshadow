@@ -1244,6 +1244,7 @@
             </div>
             <div class="checkbox-group"><input type="checkbox" id="show-location" checked> 当前地点</div>
             <div class="checkbox-group"><input type="checkbox" id="show-sun-point" checked> 直射点 <span class="info-icon" onclick="showInfoModal('sun-point')">ℹ️</span></div>
+            <div class="checkbox-group"><input type="checkbox" id="show-info-box" checked> 信息方块</div>
             <div class="checkbox-group"><input type="checkbox" id="show-twilight"> 晨昏蒙影 <span class="info-icon" onclick="showInfoModal('twilight')">ℹ️</span></div>
             <div class="checkbox-group"><input type="checkbox" id="show-geojson"> 导入数据</div>
           </div>
@@ -2230,6 +2231,14 @@
     var datetimeString = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
     datetimeInput.value = datetimeString;
 
+    datetimeInput.addEventListener("change", function() {
+      if (typeof window.updateTimeState === 'function') {
+        window.updateTimeState();
+      } else if (typeof drawmap === 'function') {
+        drawmap();
+      }
+    });
+
     var sun_d_custom = document.getElementById("sun_d_custom");
     sun_d_custom.addEventListener("input", function() {
       document.querySelector('input[name="sun_d"][value="custom"]').checked = true;
@@ -2264,14 +2273,44 @@
       });
     });
 
-    var featureCheckboxes = document.querySelectorAll('#sealand, #country, #chq, #tz, #show-location, #show-sun-point, #show-twilight');
+    var featureCheckboxes = document.querySelectorAll('#sealand, #country, #chq, #tz, #show-location, #show-sun-point, #show-twilight, #show-info-box');
     featureCheckboxes.forEach(function(checkbox) {
       checkbox.addEventListener('change', function() {
+        if (this.id === 'show-info-box') {
+          toggleInfoBoxes(this.checked);
+        }
         if (typeof window.render === 'function') {
           window.render();
         }
       });
     });
+
+    function toggleInfoBoxes(show) {
+      if (show) {
+        if (markerInfoBox) {
+          markerInfoBox.classList.remove("hidden");
+        }
+        for (var id in multiPointBoxes) {
+          var entry = multiPointBoxes[id];
+          if (entry && entry.element) {
+            var point = multiPoints.find(function(p) { return p.id == id; });
+            if (point && !isPointOnBack(entry.boxLon || point.lon, entry.boxLat || point.lat)) {
+              entry.element.classList.remove("hidden");
+            }
+          }
+        }
+      } else {
+        if (markerInfoBox) {
+          markerInfoBox.classList.add("hidden");
+        }
+        for (var id in multiPointBoxes) {
+          var entry = multiPointBoxes[id];
+          if (entry && entry.element) {
+            entry.element.classList.add("hidden");
+          }
+        }
+      }
+    }
 
     var zoomInBtn = document.getElementById("zoom-in");
     var zoomOutBtn = document.getElementById("zoom-out");
@@ -3616,7 +3655,7 @@ function zoomedd(){
       }
       
       // 绘制当前地点标记
-      if (canvas_lonlat && canvas_lonlat[0] && canvas_lonlat[1]) {
+      if (document.getElementById("show-location").checked && canvas_lonlat && canvas_lonlat[0] && canvas_lonlat[1]) {
         var markerLon = canvas_lonlat[0];
         var markerLat = canvas_lonlat[1];
         var markerOpacity = getPointOpacity(markerLon, markerLat);
@@ -3671,8 +3710,11 @@ function zoomedd(){
       }
       
       // 更新信息框位置和内容
-      updateMarkerPosition();
-      updateMarkerInfo();
+      var showInfoBox = document.getElementById("show-info-box") && document.getElementById("show-info-box").checked;
+      if (showInfoBox) {
+        updateMarkerPosition();
+        updateMarkerInfo();
+      }
       
       // 绘制多点对比标记
       if (window.multiPoints && window.multiPoints.length > 0) {
@@ -3696,11 +3738,13 @@ function zoomedd(){
             
             context.globalAlpha = mpOpacity;
             
-            if (typeof window.updateMultiPointBoxPosition === 'function') {
-              window.updateMultiPointBoxPosition(mp);
-            }
-            if (typeof window.updateMultiPointBox === 'function') {
-              window.updateMultiPointBox(mp);
+            if (showInfoBox) {
+              if (typeof window.updateMultiPointBoxPosition === 'function') {
+                window.updateMultiPointBoxPosition(mp);
+              }
+              if (typeof window.updateMultiPointBox === 'function') {
+                window.updateMultiPointBox(mp);
+              }
             }
             
             var entry = window.multiPointBoxes && window.multiPointBoxes[mp.id];
